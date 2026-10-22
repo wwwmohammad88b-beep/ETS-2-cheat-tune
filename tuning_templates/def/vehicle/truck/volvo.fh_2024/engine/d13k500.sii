@@ -1,0 +1,43 @@
+SiiNunit
+{
+accessory_engine_data : d13k500.volvo.fh_2024.engine
+{
+	name: "@@engine_d13s500a_euro_6e@@"
+	price: 17520
+	unlock: 6
+	info[]: "500 @@hp@@ (368@@kw@@)"
+	info[]: "2@@dg@@500 @@nm@@"
+	info[]: "980-1@@dg@@400 @@rpm@@"
+	icon: "engine_volvo_d13k"
+	part_type: factory
+
+	torque: 2500
+	volume: 12.8
+
+	torque_curve[]: (0, 0.0)
+	torque_curve[]: (600, 0.62)
+	torque_curve[]: (980, 1.0)
+	torque_curve[]: (1400, 1.0)
+	torque_curve[]: (1700, 0.84)
+	torque_curve[]: (1900, 0.72)
+	torque_curve[]: (2200, 0.0)
+
+	rpm_idle: 500
+	rpm_limit: 2100
+	rpm_limit_neutral: 2100
+	rpm_range_low_gear: (850, 1550)
+	rpm_range_high_gear: (980, 1400)
+	rpm_range_power: (1400, 1900)
+	rpm_range_engine_brake: (1500, 2000)
+
+	engine_brake: 2.0
+	engine_brake_downshift: 1
+	engine_brake_positions: 3
+
+	no_adblue_power_limit: 0.6
+
+@include "sound_lo.sui"
+
+	overrides[]: "/def/vehicle/truck/volvo.fh_2024/accessory/badge/badge_500.sii"
+}
+}

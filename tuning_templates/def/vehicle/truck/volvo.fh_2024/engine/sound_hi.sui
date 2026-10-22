@@ -1,0 +1,7 @@
+# Configuration of the engine sounds for the specific truck.
+	sounds:5
+	sounds[]: "engine|/def/vehicle/truck/volvo.fh_2024/engine/sound_hi_engine.soundref"
+	sounds[]: "exhaust|/def/vehicle/truck/volvo.fh_2024/engine/sound_hi_exhaust.soundref"
+	sounds[]: "start_bad|/def/vehicle/truck/volvo.fh_2024/engine/sound_hi_start_bad.soundref"
+	sounds[]: "turbo|/def/vehicle/truck/volvo.fh_2024/engine/sound_hi_turbo.soundref"
+	sounds[]: "remote|/def/vehicle/truck/volvo.fh_2024/engine/sound_hi_engine_rm.soundref"

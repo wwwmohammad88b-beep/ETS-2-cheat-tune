@@ -1,0 +1,4 @@
+# Configuration of the engine sounds for the specific truck.
+	sounds:2
+	sounds[]: "engine|/def/vehicle/truck/scania.s_2024e/engine/sound_hi_engine.soundref"
+	sounds[]: "remote|/def/vehicle/truck/scania.s_2024e/engine/sound_hi_engine_rm.soundref"

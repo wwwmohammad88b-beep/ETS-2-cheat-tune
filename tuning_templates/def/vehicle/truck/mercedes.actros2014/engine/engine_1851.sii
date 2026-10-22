@@ -1,0 +1,33 @@
+SiiNunit
+{
+accessory_engine_data : engine51.mercedes.actros2014.engine
+{
+	name: "@@engine_om_471_euro_vi_375@@"
+	price: 19800
+	unlock: 12
+	info[]: "510 @@hp@@ (375@@kw@@)"
+	info[]: "2@@dg@@500 @@nm@@"
+	info[]: "1@@dg@@100 @@rpm@@"
+	icon: "engine/mercedes_om471"
+	part_type: factory
+
+	torque: 2500
+	torque_curve[]: (0, 0.0)
+	torque_curve[]: (440, 0.5)
+	torque_curve[]: (1000, 1)
+	torque_curve[]: (1200, 1)
+	torque_curve[]: (1400, 0.98)
+	torque_curve[]: (1700, 0.8)
+	torque_curve[]: (2000, 0.6)
+	torque_curve[]: (2200, 0)
+
+	rpm_limit: 2300
+	rpm_range_power: (1400, 1800)
+	volume: 12.8
+	no_adblue_power_limit: 0.5
+
+@include "sound_lo.sui"
+
+	overrides[]: "/def/vehicle/truck/mercedes.actros2014/badge_b/badge_xx51.sii"
+}
+}

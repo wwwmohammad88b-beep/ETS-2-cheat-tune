@@ -1,0 +1,20 @@
+SiiNunit
+{
+bank : bank.data {
+ money_account: 12345
+}
+economy : economy.data {
+ experience_points: 42
+ adr: 0
+ long_dist: 1
+ heavy: 2
+ fragile: 3
+ urgent: 4
+ mechanical: 5
+ garages: 0
+ visited_cities: 0
+ visited_cities_count: 0
+ unlocked_dealers: 0
+ unlocked_recruitments: 0
+}
+}

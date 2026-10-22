@@ -1,0 +1,43 @@
+SiiNunit
+{
+accessory_engine_data : d13k540.volvo.fh_2024.engine
+{
+	name: "@@engine_d13s540a_euro_6e@@"
+	price: 22680
+	unlock: 11
+	info[]: "540 @@hp@@ (397@@kw@@)"
+	info[]: "2@@dg@@600 @@nm@@"
+	info[]: "1@@dg@@000-1@@dg@@460 @@rpm@@"
+	icon: "engine_volvo_d13k"
+	part_type: factory
+
+	torque: 2600
+	volume: 12.8
+
+	torque_curve[]: (0, 0.0)
+	torque_curve[]: (600, 0.5)
+	torque_curve[]: (1000, 1.0)
+	torque_curve[]: (1460, 1.0)
+	torque_curve[]: (1800, 0.82)
+	torque_curve[]: (1900, 0.75)
+	torque_curve[]: (2200, 0.0)
+
+	rpm_idle: 500
+	rpm_limit: 2100
+	rpm_limit_neutral: 2100
+	rpm_range_low_gear: (850, 1600)
+	rpm_range_high_gear: (1000, 1400)
+	rpm_range_power: (1400, 1900)
+	rpm_range_engine_brake: (1400, 1900)
+
+	engine_brake: 2.0
+	engine_brake_downshift: 1
+	engine_brake_positions: 3
+
+	no_adblue_power_limit: 0.6
+
+@include "sound_lo.sui"
+
+	overrides[]: "/def/vehicle/truck/volvo.fh_2024/accessory/badge/badge_540.sii"
+}
+}
