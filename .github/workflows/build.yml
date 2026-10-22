@@ -1,0 +1,29 @@
+name: Build Windows installer
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Python dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r requirements.txt
+      - name: Build standalone executable
+        run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
+      - name: Install Inno Setup
+        run: choco install innosetup -y --no-progress
+      - name: Compile installer
+        run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ETS2SaveEditor-Windows
+          path: |
+            installer/ETS2SaveEditor_Setup.exe
+            dist/ETS2SaveEditor.exe
+          if-no-files-found: error
