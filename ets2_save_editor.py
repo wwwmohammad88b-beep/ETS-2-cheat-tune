@@ -23,7 +23,7 @@ import zipfile
 from pathlib import Path
 
 APP = "ETS2 Save Editor"
-VERSION = "2.1"
+VERSION = "2.2"
 
 TUNING_TRUCKS = {
     "Mercedes Actros 2014": "mercedes.actros2014",
@@ -47,32 +47,48 @@ def _scale_scs_number(value, factor, integer=False):
     return ("%.4f" % scaled).rstrip("0").rstrip(".")
 
 
-def tune_engine_definition(text, torque_factor, rpm_factor):
-    """Adjust engine definition values while preserving the Sii file layout."""
+def tune_engine_definition(text, target_hp, target_torque, target_rpm):
+    """Apply absolute engine targets; no arbitrary gameplay caps are imposed."""
+    mtorque = re.search(r"(?m)^\s*torque:\s*([\d.]+)", text)
+    mhp = re.search(r'info\[\]:\s*"(\d+).*?@@hp@@', text)
+    mrpm = re.search(r"(?m)^\s*rpm_limit:\s*(\d+)", text)
+    base_torque = float(mtorque.group(1)) if mtorque else target_torque
+    base_hp = float(mhp.group(1)) if mhp else target_hp
+    base_rpm = float(mrpm.group(1)) if mrpm and int(mrpm.group(1)) else target_rpm
+    torque_factor = target_torque / base_torque
+    rpm_factor = target_rpm / base_rpm
+    curve_factor = (target_hp / base_hp) / (torque_factor * rpm_factor)
     out = []
     info_line = 0
     for line in text.splitlines(keepends=True):
         if re.match(r"\s*torque:\s*", line):
             line = re.sub(r"(\btorque:\s*)([-+]?\d+(?:\.\d+)?)",
-                          lambda m: m.group(1) + _scale_scs_number(m.group(2), torque_factor),
+                          lambda m: m.group(1) + _scale_scs_number(target_torque, 1),
                           line, count=1)
         elif re.match(r"\s*(?:secondary_)?torque_curve\[\]:", line):
             def scale_curve(match):
                 rpm = _scale_scs_number(match.group(1), rpm_factor, integer=True)
-                return "(" + rpm + ", " + match.group(2) + ")"
+                curve = _scale_scs_number(match.group(2), curve_factor)
+                return "(" + rpm + ", " + curve + ")"
             line = re.sub(r"\(\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)\s*\)",
                           scale_curve, line, count=1)
         elif re.match(r"\s*rpm_\w+\s*:", line):
             line = re.sub(r"([-+]?\d+(?:\.\d+)?)",
-                          lambda m: _scale_scs_number(m.group(1), rpm_factor, integer=True),
+                lambda m: _scale_scs_number(m.group(1), rpm_factor, integer=True),
                           line, flags=re.I)
         elif re.match(r"\s*info\[\]:\s*\"", line):
-            factor = (torque_factor * rpm_factor) if info_line == 0 else (
-                torque_factor if info_line == 1 else rpm_factor)
+            line_index = info_line
             info_line += 1
+            replacements = [target_hp, int(round(target_hp * 0.7457))] if line_index == 0 else (
+                [target_torque] if line_index == 1 else None)
+            replacement_i = [0]
             def scale_display(match):
                 old = int(match.group(1) + (match.group(2) or ""))
-                new = 0 if old == 0 else max(1, int(round(old * factor)))
+                if replacements is not None and replacement_i[0] < len(replacements):
+                    new = int(round(replacements[replacement_i[0]]))
+                    replacement_i[0] += 1
+                else:
+                    new = 0 if old == 0 else max(1, int(round(old * rpm_factor)))
                 digits = str(new)
                 if len(digits) > 3:
                     return digits[:-3] + "@@dg@@" + digits[-3:]
@@ -82,7 +98,7 @@ def tune_engine_definition(text, torque_factor, rpm_factor):
     return "".join(out)
 
 
-def create_tuning_mod(destination, selected_trucks, torque_factor, rpm_factor):
+def create_tuning_mod(destination, selected_trucks, target_hp, target_torque, target_rpm):
     """Create a ZIP-format SCS mod containing only selected truck engines."""
     template_root = tuning_template_root()
     entries = []
@@ -95,7 +111,7 @@ def create_tuning_mod(destination, selected_trucks, torque_factor, rpm_factor):
         for path in sorted(source.glob("*.sii")):
             rel = path.relative_to(template_root).as_posix()
             original = path.read_text(encoding="utf-8", errors="replace")
-            entries.append((rel, tune_engine_definition(original, torque_factor, rpm_factor)))
+            entries.append((rel, tune_engine_definition(original, target_hp, target_torque, target_rpm)))
     if not entries:
         raise ValueError("Select at least one truck.")
 
@@ -103,9 +119,9 @@ def create_tuning_mod(destination, selected_trucks, torque_factor, rpm_factor):
     manifest = '''SiiNunit\n{\nmod_package : .%s {\n package_version: "1.0"\n display_name: "ETS2 Save Editor Performance Tune"\n author: "ETS2 Save Editor"\n category[]: "truck"\n compatible_versions[]: "1.60.*"\n}\n}\n''' % package_id
     description = (
         "Performance tuning for selected ETS2 truck models.\n"
-        "Torque multiplier: %.2fx\nEngine RPM multiplier: %.2fx\n\n"
+        "Target power: %.0f hp\nTarget torque: %.0f Nm\nTarget RPM limit: %.0f\n\n"
         "This changes engine definitions. Maximum road speed still depends on gearbox, "
-        "truck configuration, load, and game physics.\n" % (torque_factor, rpm_factor)
+        "truck configuration, load, and game physics.\n" % (target_hp, target_torque, target_rpm)
     )
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
@@ -1148,8 +1164,9 @@ T = {
     "tab_settings": ("Game settings", "تنظیمات بازی"),
     "tune_title": ("Build a performance mod", "ساخت ماد تقویت موتور"),
     "tune_trucks": ("Truck models included", "مدل‌های کامیون در ماد"),
-    "tune_torque": ("Torque multiplier", "ضریب گشتاور"),
-    "tune_rpm": ("Engine RPM multiplier", "ضریب دور موتور"),
+    "tune_torque": ("Target torque (Nm)", "گشتاور هدف (نیوتن‌متر)"),
+    "tune_rpm": ("RPM limit", "حد دور موتور"),
+    "tune_hp": ("Target horsepower (hp)", "اسب‌بخار هدف (HP)"),
     "tune_build": ("Create and install mod", "ساخت و نصب ماد"),
     "tune_note": ("Choose the engine strength and RPM range. The mod changes engine definitions for the selected models. "
                   "Top speed is not a fixed target; the gearbox, truck setup, load, and game physics also affect it.",
@@ -1157,8 +1174,8 @@ T = {
                   "سرعت نهایی عدد تضمینی نیست؛ گیربکس، تنظیم کامیون، بار و فیزیک بازی هم اثر دارند."),
     "tune_success": ("Created {n} engine files and installed the mod:\n{path}\n\nEnable it in the game's Mod Manager.",
                      "{n} فایل موتور ساخته و ماد نصب شد:\n{path}\n\nآن را در Mod Manager بازی فعال کن."),
-    "tune_bad_factor": ("Torque must be 1.0–3.0 and RPM must be 1.0–1.5.",
-                        "ضریب گشتاور باید بین ۱ تا ۳ و دور موتور بین ۱ تا ۱٫۵ باشد."),
+    "tune_bad_factor": ("Enter positive finite values for horsepower, torque, and RPM.",
+                        "برای اسب‌بخار، گشتاور و دور موتور عدد مثبت و معتبر وارد کن."),
     "tune_gauge": ("SPEED ESTIMATE", "برآورد سرعت"),
     "tune_gauge_note": ("Visual estimate from RPM setting · gearbox and load change real speed",
                         "برآورد نمایشی بر پایه‌ی دور موتور · گیربکس و بار سرعت واقعی را تغییر می‌دهند"),
@@ -1167,6 +1184,9 @@ T = {
     "tune_rpm_short": ("RPM RANGE", "بازه دور موتور"),
     "tune_live": ("TUNING PREVIEW", "پیش‌نمایش تیونینگ"),
     "tune_profile": ("PERFORMANCE PROFILE", "پروفایل عملکرد"),
+    "tune_card_hp": ("TARGET POWER", "قدرت هدف"),
+    "tune_card_torque": ("TARGET TORQUE", "گشتاور هدف"),
+    "tune_card_models": ("SELECTED TRUCKS", "کامیون انتخابی"),
     "tune_no_dir": ("Choose your Documents\\Euro Truck Simulator 2 folder in the Save editor tab first.",
                     "اول در تب ادیت سیو، پوشه‌ی Documents\\Euro Truck Simulator 2 را انتخاب کن."),
     "tune_running": ("Close ETS2 before creating a tuning mod.", "قبل از ساخت ماد، بازی ETS2 را ببند."),
@@ -1323,8 +1343,8 @@ def run_gui():
     from tkinter import ttk, filedialog, messagebox
 
     root = tk.Tk()
-    root.geometry("1040x800")
-    root.minsize(900, 700)
+    root.geometry("1360x880")
+    root.minsize(1080, 740)
     style = ttk.Style()
 
     palette = [
@@ -1353,31 +1373,40 @@ def run_gui():
     def apply_appearance():
         night = appearance["mode"] == "night"
         accent = dict(palette)[appearance["accent"]]
-        bg, panel = ("#101923", "#182431") if night else ("#edf3f8", "#ffffff")
-        fg = "#e7eef5" if night else "#17212b"
-        muted = "#aab8c5" if night else "#526170"
-        field = "#0c141c" if night else "#ffffff"
+        bg, panel = ("#0b1117", "#121b24") if night else ("#eaf0f5", "#ffffff")
+        fg = "#edf4fa" if night else "#17212b"
+        muted = "#94a5b3" if night else "#526170"
+        field = "#0d151d" if night else "#ffffff"
         style.theme_use("clam")
-        style.configure(".", background=bg, foreground=fg)
+        style.configure(".", background=bg, foreground=fg, font=("Segoe UI", 10))
         style.configure("TFrame", background=bg)
         style.configure("TLabel", background=bg, foreground=fg)
-        style.configure("TLabelFrame", background=bg, foreground=accent, bordercolor="#344454")
-        style.configure("TLabelFrame.Label", background=bg, foreground=accent)
-        style.configure("TButton", background=panel, foreground=fg, bordercolor="#344454", padding=(10, 5))
-        style.map("TButton", background=[("active", accent)], foreground=[("active", "#07111a")])
+        style.configure("TLabelFrame", background=panel, foreground=accent,
+                        bordercolor="#243442" if night else "#d5dee6", relief="solid", borderwidth=1)
+        style.configure("TLabelFrame.Label", background=panel, foreground=accent,
+                        font=("Segoe UI Semibold", 10))
+        style.configure("TButton", background=panel, foreground=fg,
+                        bordercolor="#2a3a47" if night else "#cbd6df", padding=(12, 7), relief="flat")
+        style.map("TButton", background=[("active", accent), ("pressed", accent)],
+                  foreground=[("active", "#07111a"), ("pressed", "#07111a")])
         style.configure("TCheckbutton", background=bg, foreground=fg)
         style.map("TCheckbutton", background=[("active", bg)])
-        style.configure("TNotebook", background=bg, bordercolor="#344454")
-        style.configure("TNotebook.Tab", background=panel, foreground=muted, padding=(12, 7))
+        style.configure("TNotebook", background=bg, bordercolor=bg)
+        style.configure("TNotebook.Tab", background=panel, foreground=muted, padding=(14, 9),
+                        font=("Segoe UI Semibold", 9))
         style.map("TNotebook.Tab", background=[("selected", accent)], foreground=[("selected", "#07111a")])
         style.configure("TEntry", fieldbackground=field, foreground=fg, insertcolor=fg)
         style.configure("TCombobox", fieldbackground=field, background=panel, foreground=fg, arrowcolor=accent)
         style.map("TCombobox", fieldbackground=[("readonly", field)], foreground=[("readonly", fg)])
         style.configure("Treeview", background=panel, fieldbackground=panel, foreground=fg,
-                        rowheight=27, bordercolor="#344454")
-        style.configure("Treeview.Heading", background=bg, foreground=accent, padding=6)
+                        rowheight=32, bordercolor="#243442" if night else "#d5dee6", relief="flat")
+        style.configure("Treeview.Heading", background=panel, foreground=accent, padding=(8, 9),
+                        font=("Segoe UI Semibold", 9))
         style.map("Treeview", background=[("selected", accent)], foreground=[("selected", "#07111a")])
-        style.configure("TSeparator", background="#344454")
+        style.configure("TEntry", padding=7)
+        style.configure("TCombobox", padding=6)
+        style.configure("TSpinbox", padding=5)
+        style.configure("TSeparator", background="#243442" if night else "#d5dee6")
         root.configure(background=bg)
 
     lang = {"i": 0}            # 0 = English, 1 = Persian
@@ -1396,8 +1425,9 @@ def run_gui():
     var_unlock = tk.BooleanVar(value=False)
     var_status = tk.StringVar()
     tune_truck_vars = {name: tk.BooleanVar(value=True) for name in TUNING_TRUCKS}
-    var_torque_factor = tk.StringVar(value="1.5")
-    var_rpm_factor = tk.StringVar(value="1.1")
+    var_torque_factor = tk.StringVar(value="3500")
+    var_rpm_factor = tk.StringVar(value="3000")
+    var_hp_target = tk.StringVar(value="750")
     var_gauge_target = tk.DoubleVar(value=110.0)
     needle_speed = {"value": 0.0, "target": 99.0, "job": None}
     var_gver = tk.StringVar()
@@ -1407,6 +1437,7 @@ def run_gui():
     cfg_vars = {k: tk.BooleanVar(value=False) for k in CONFIG_KEYS}
     w = {}                     # widgets that get rebuilt
     cur = {"profile_idx": 0}
+    active_page = {"key": "tune"}
 
     def status(msg):
         var_status.set(msg)
@@ -1456,8 +1487,25 @@ def run_gui():
             style.configure("Treeview.Heading", font=font)
         except tk.TclError:
             pass
-        bar = ttk.Frame(container)
-        bar.pack(fill="x", padx=8, pady=(6, 0))
+        shell = ttk.Frame(container)
+        shell.pack(fill="both", expand=True)
+        sidebar = tk.Frame(shell, bg="#0a1118", width=208)
+        sidebar.pack(side="left", fill="y")
+        sidebar.pack_propagate(False)
+        brand = tk.Frame(sidebar, bg="#0a1118")
+        brand.pack(fill="x", padx=16, pady=(18, 24))
+        tk.Label(brand, text="R", bg="#102432", fg=dict(palette)[appearance["accent"]],
+                 font=("Segoe UI Semibold", 17), width=2, height=1).pack(side="left", padx=(0, 9))
+        tk.Label(brand, text="ROADLINE\nGARAGE LAB", bg="#0a1118", fg="#dce9f2",
+                 justify="left", font=("Segoe UI Semibold", 10)).pack(side="left")
+        tk.Label(sidebar, text="WORKSPACE", bg="#0a1118", fg="#708392",
+                 font=("Segoe UI Semibold", 8)).pack(anchor="w", padx=18, pady=(0, 8))
+        content = ttk.Frame(shell)
+        content.pack(side="left", fill="both", expand=True)
+        bar = ttk.Frame(content)
+        bar.pack(fill="x", padx=18, pady=(12, 8))
+        tk.Label(bar, text="ETS2  /  SINGLE PLAYER TOOLS", bg="#101923" if appearance["mode"] == "night" else "#edf3f8",
+                 fg="#718495", font=("Segoe UI Semibold", 9)).pack(side="left")
         ttk.Button(bar, text=tr("lang_btn"), command=switch_lang).pack(side="right")
         palette_names = [x[0] for x in palette]
         accent_box = ttk.Combobox(bar, values=palette_names, state="readonly", width=9)
@@ -1471,27 +1519,53 @@ def run_gui():
         accent_box.bind("<<ComboboxSelected>>", choose_accent)
         ttk.Button(bar, text=tr("theme_day") if appearance["mode"] == "night" else tr("theme_night"),
                    command=toggle_theme).pack(side="right", padx=6)
-        nb = ttk.Notebook(container)
-        nb.pack(fill="both", expand=True, padx=8, pady=6)
-        w["nb"] = nb
-        t1, t2, t3, t4, t5 = (ttk.Frame(nb) for _ in range(5))
-        nb.add(t1, text=tr("tab_save"))
-        nb.add(t2, text=tr("tab_extras"))
-        nb.add(t3, text=tr("tab_mods"))
-        nb.add(t4, text=tr("tab_settings"))
-        nb.add(t5, text=tr("tab_tune"))
+        page_host = ttk.Frame(content)
+        page_host.pack(fill="both", expand=True, padx=16, pady=(2, 8))
+        page_defs = [
+            ("tune", tr("tab_tune"), "◉", build_tuning),
+            ("save", tr("tab_save"), "▤", build_save),
+            ("extras", tr("tab_extras"), "✦", build_extras),
+            ("mods", tr("tab_mods"), "⬡", build_mods),
+            ("settings", tr("tab_settings"), "⚙", build_settings),
+        ]
+        pages = {}
+        nav_buttons = {}
+        for key, label, icon, builder in page_defs:
+            panel = ttk.Frame(page_host)
+            panel.place(relx=0, rely=0, relwidth=1, relheight=1)
+            builder(panel)
+            pages[key] = panel
+            button = tk.Button(sidebar, text=f"  {icon}     {label}", anchor="w", relief="flat",
+                               bd=0, padx=12, pady=11, cursor="hand2",
+                               font=("Segoe UI Semibold", 10),
+                               command=lambda k=key: show_page(k))
+            button.pack(fill="x", padx=10, pady=2)
+            nav_buttons[key] = button
+        w["pages"], w["nav_buttons"] = pages, nav_buttons
         build_save(t1)
         build_extras(t2)
         build_mods(t3)
         build_settings(t4)
         build_tuning(t5)
-        bt = ttk.Frame(container)
-        bt.pack(fill="x", padx=8, pady=2)
-        ttk.Button(bt, text=tr("max_all"), command=max_all).pack(side="left", padx=4)
-        ttk.Button(bt, text=tr("restore"), command=restore).pack(side="left", padx=4)
-        ttk.Button(bt, text=tr("apply"), command=apply).pack(side="right", padx=4)
-        ttk.Label(container, textvariable=var_status, relief="sunken", anchor="w"
+        foot = ttk.Frame(content)
+        foot.pack(fill="x", padx=16, pady=(0, 5))
+        ttk.Button(foot, text=tr("max_all"), command=max_all).pack(side="left", padx=3)
+        ttk.Button(foot, text=tr("restore"), command=restore).pack(side="left", padx=3)
+        ttk.Button(foot, text=tr("apply"), command=apply).pack(side="right", padx=3)
+        ttk.Label(content, textvariable=var_status, relief="sunken", anchor="w"
                   ).pack(fill="x", side="bottom")
+        show_page(active_page["key"])
+
+    def show_page(key):
+        active_page["key"] = key
+        pages = w.get("pages", {})
+        if key in pages:
+            pages[key].tkraise()
+        for name, button in w.get("nav_buttons", {}).items():
+            selected = name == key
+            button.configure(bg="#183141" if selected else "#0a1118",
+                             fg=dict(palette)[appearance["accent"]] if selected else "#9aabb8",
+                             activebackground="#213c4b", activeforeground="#f2a840")
 
     def build_save(tab):
         pad = {"padx": 8, "pady": 4}
@@ -1671,13 +1745,11 @@ def run_gui():
                             command=refresh_tuning_dashboard).pack(anchor="w", pady=3)
         ttk.Separator(left).pack(fill="x", pady=10)
         ttk.Label(left, text=tr("tune_torque"), style="TuneMuted.TLabel").pack(anchor="w")
-        ttk.Spinbox(left, from_=1.0, to=3.0, increment=0.1, width=13,
-                    textvariable=var_torque_factor,
-                    command=refresh_tuning_dashboard).pack(anchor="w", pady=(3, 9))
+        ttk.Entry(left, width=15, textvariable=var_torque_factor).pack(anchor="w", pady=(3, 9))
+        ttk.Label(left, text=tr("tune_hp"), style="TuneMuted.TLabel").pack(anchor="w")
+        ttk.Entry(left, width=15, textvariable=var_hp_target).pack(anchor="w", pady=(3, 9))
         ttk.Label(left, text=tr("tune_rpm"), style="TuneMuted.TLabel").pack(anchor="w")
-        ttk.Spinbox(left, from_=1.0, to=1.5, increment=0.05, width=13,
-                    textvariable=var_rpm_factor,
-                    command=refresh_tuning_dashboard).pack(anchor="w", pady=(3, 9))
+        ttk.Entry(left, width=15, textvariable=var_rpm_factor).pack(anchor="w", pady=(3, 9))
         ttk.Button(left, text=tr("tune_build"), command=build_tuning_mod).pack(fill="x", pady=(8, 3))
 
         hero = ttk.Frame(right, style="TuneCard.TFrame", padding=10)
@@ -1696,9 +1768,9 @@ def run_gui():
         stats.pack(fill="x", pady=(10, 0))
         cards = []
         for title, initial, suffix, color in (
-                ("tune_power", "1.50×", "TORQUE", "TuneAccent.TLabel"),
-                ("tune_rpm_short", "1.10×", "RPM", "TuneGold.TLabel"),
-                ("tune_selected", "3", "TRUCKS", "TuneAccent.TLabel")):
+                ("tune_card_hp", "750 hp", "HORSEPOWER", "TuneAccent.TLabel"),
+                ("tune_card_torque", "3500 Nm", "NEWTON-METRES", "TuneGold.TLabel"),
+                ("tune_card_models", "3", "TRUCKS", "TuneAccent.TLabel")):
             card = ttk.Frame(stats, style="TuneCard.TFrame", padding=(10, 8))
             card.pack(side="left", fill="x", expand=True, padx=(0, 8))
             ttk.Label(card, text=tr(title), style="TuneMuted.TLabel").pack(anchor="w")
@@ -1713,11 +1785,12 @@ def run_gui():
                   wraplength=720, justify="left").pack(anchor="w", pady=(2, 0))
         var_torque_factor.trace_add("write", refresh_tuning_dashboard)
         var_rpm_factor.trace_add("write", refresh_tuning_dashboard)
+        var_hp_target.trace_add("write", refresh_tuning_dashboard)
         draw_tuning_gauge()
         refresh_tuning_dashboard()
 
     def set_gauge_target(value):
-        value = max(0.0, min(300.0, float(value)))
+        value = max(0.0, float(value))
         var_gauge_target.set(value)
         draw_tuning_gauge()
 
@@ -1730,25 +1803,27 @@ def run_gui():
         height = max(canvas.winfo_height(), 230)
         cx, cy = width / 2, height * 0.91
         radius = min(width * 0.34, height * 0.86)
-        value = max(0.0, min(300.0, needle_speed["value"]))
+        value = max(0.0, needle_speed["value"])
+        scale_max = max(300, int(math.ceil(value / 100.0) * 100))
         accent = dict(palette)[appearance["accent"]]
         start, extent = 225, 270
         bbox = (cx-radius, cy-radius, cx+radius, cy+radius)
         canvas.create_arc(bbox, start=start, extent=extent, style="arc", outline="#273540", width=13)
-        active_extent = extent * value / 300.0
+        active_extent = extent * value / scale_max
         canvas.create_arc(bbox, start=start, extent=active_extent, style="arc", outline=accent, width=13)
-        for tick in range(0, 301, 20):
-            angle = math.radians(start + extent * tick / 300.0)
+        step = scale_max // 5
+        for tick in range(0, scale_max + 1, step):
+            angle = math.radians(start + extent * tick / scale_max)
             r1, r2 = radius - 8, radius - (22 if tick % 60 == 0 else 15)
             x1, y1 = cx + r1 * math.cos(angle), cy - r1 * math.sin(angle)
             x2, y2 = cx + r2 * math.cos(angle), cy - r2 * math.sin(angle)
             canvas.create_line(x1, y1, x2, y2, fill="#718391" if tick % 60 else "#d3dde5",
                                width=2 if tick % 60 == 0 else 1)
-            if tick % 60 == 0:
+            if tick % (step * 2) == 0:
                 rt = radius - 37
                 tx, ty = cx + rt * math.cos(angle), cy - rt * math.sin(angle)
                 canvas.create_text(tx, ty, text=str(tick), fill="#aab8c5", font=("Segoe UI", 9))
-        angle = math.radians(start + extent * value / 300.0)
+        angle = math.radians(start + extent * value / scale_max)
         tipx, tipy = cx + (radius - 48) * math.cos(angle), cy - (radius - 48) * math.sin(angle)
         canvas.create_line(cx, cy, tipx, tipy, fill="#f5a742", width=4, capstyle="round")
         canvas.create_oval(cx-7, cy-7, cx+7, cy+7, fill="#f5a742", outline="")
@@ -1759,18 +1834,21 @@ def run_gui():
 
     def refresh_tuning_dashboard(*_):
         try:
-            rpm = max(1.0, min(1.5, float(var_rpm_factor.get())))
-            torque = max(1.0, min(3.0, float(var_torque_factor.get())))
+            rpm = float(var_rpm_factor.get())
+            torque = float(var_torque_factor.get())
+            hp = float(var_hp_target.get())
+            if min(rpm, torque, hp) <= 0 or not all(math.isfinite(v) for v in (rpm, torque, hp)):
+                return
         except (ValueError, tk.TclError):
             return
-        target = 90.0 * rpm
+        target = 90.0 * rpm / 2100.0
         var_gauge_target.set(target)
         needle_speed["target"] = target
         animate_gauge()
         cards = w.get("tune_cards", [])
         if len(cards) == 3:
-            cards[0].configure(text=f"{torque:.2f}×")
-            cards[1].configure(text=f"{rpm:.2f}×")
+            cards[0].configure(text=f"{hp:,.0f} hp")
+            cards[1].configure(text=f"{torque:,.0f} Nm")
             cards[2].configure(text=str(sum(v.get() for v in tune_truck_vars.values())))
         draw_tuning_gauge()
 
@@ -1798,21 +1876,22 @@ def run_gui():
             messagebox.showwarning(tr("title"), tr("tune_trucks"))
             return
         try:
-            torque_factor = float(var_torque_factor.get())
-            rpm_factor = float(var_rpm_factor.get())
-            if not (1.0 <= torque_factor <= 3.0 and 1.0 <= rpm_factor <= 1.5):
+            target_torque = float(var_torque_factor.get())
+            target_rpm = float(var_rpm_factor.get())
+            target_hp = float(var_hp_target.get())
+            if min(target_torque, target_rpm, target_hp) <= 0 or not all(
+                    math.isfinite(v) for v in (target_torque, target_rpm, target_hp)):
                 raise ValueError
         except ValueError:
             messagebox.showwarning(tr("title"), tr("tune_bad_factor"))
             return
         mod_dir = mod_folder(base)
         stamp = time.strftime("%Y%m%d_%H%M%S")
-        filename = "ETS2SE_Tune_T%s_R%s_%s.scs" % (
-            ("%.2f" % torque_factor).replace(".", "p"),
-            ("%.2f" % rpm_factor).replace(".", "p"), stamp)
+        filename = "ETS2SE_Tune_%sHP_%sNm_%sRPM_%s.scs" % (
+            int(target_hp), int(target_torque), int(target_rpm), stamp)
         destination = mod_dir / filename
         try:
-            count = create_tuning_mod(destination, selected, torque_factor, rpm_factor)
+            count = create_tuning_mod(destination, selected, target_hp, target_torque, target_rpm)
             refresh_mods()
             var_status.set(tr("tune_success", n=count, path=destination))
             messagebox.showinfo(tr("title"), tr("tune_success", n=count, path=destination))

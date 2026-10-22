@@ -2,7 +2,7 @@
 [Setup]
 AppId={{CCF12E8E-EDC6-4C3D-9D1B-4C649220AEB2}
 AppName=ETS2 Save Editor
-AppVersion=2.1
+AppVersion=2.2
 AppPublisher=ETS2 Save Editor
 DefaultDirName={localappdata}\Programs\ETS2 Save Editor
 DefaultGroupName=ETS2 Save Editor
