@@ -18,6 +18,7 @@ import shutil
 import time
 import subprocess
 import json
+import math
 import zipfile
 from pathlib import Path
 
@@ -1158,6 +1159,14 @@ T = {
                      "{n} فایل موتور ساخته و ماد نصب شد:\n{path}\n\nآن را در Mod Manager بازی فعال کن."),
     "tune_bad_factor": ("Torque must be 1.0–3.0 and RPM must be 1.0–1.5.",
                         "ضریب گشتاور باید بین ۱ تا ۳ و دور موتور بین ۱ تا ۱٫۵ باشد."),
+    "tune_gauge": ("SPEED ESTIMATE", "برآورد سرعت"),
+    "tune_gauge_note": ("Visual estimate from RPM setting · gearbox and load change real speed",
+                        "برآورد نمایشی بر پایه‌ی دور موتور · گیربکس و بار سرعت واقعی را تغییر می‌دهند"),
+    "tune_selected": ("TRUCKS IN THIS BUILD", "کامیون‌های این ماد"),
+    "tune_power": ("TORQUE OUTPUT", "قدرت گشتاور"),
+    "tune_rpm_short": ("RPM RANGE", "بازه دور موتور"),
+    "tune_live": ("TUNING PREVIEW", "پیش‌نمایش تیونینگ"),
+    "tune_profile": ("PERFORMANCE PROFILE", "پروفایل عملکرد"),
     "tune_no_dir": ("Choose your Documents\\Euro Truck Simulator 2 folder in the Save editor tab first.",
                     "اول در تب ادیت سیو، پوشه‌ی Documents\\Euro Truck Simulator 2 را انتخاب کن."),
     "tune_running": ("Close ETS2 before creating a tuning mod.", "قبل از ساخت ماد، بازی ETS2 را ببند."),
@@ -1389,6 +1398,8 @@ def run_gui():
     tune_truck_vars = {name: tk.BooleanVar(value=True) for name in TUNING_TRUCKS}
     var_torque_factor = tk.StringVar(value="1.5")
     var_rpm_factor = tk.StringVar(value="1.1")
+    var_gauge_target = tk.DoubleVar(value=110.0)
+    needle_speed = {"value": 0.0, "target": 99.0, "job": None}
     var_gver = tk.StringVar()
     skill_vars = {k: tk.IntVar(value=0) for k in SKILLS}
     adr_vars = [tk.BooleanVar(value=False) for _ in ADR_CLASSES]
@@ -1618,23 +1629,161 @@ def run_gui():
         ttk.Label(tab, text=tr("cfg_note"), foreground="#555").pack(anchor="w", padx=14)
 
     def build_tuning(tab):
-        box = ttk.LabelFrame(tab, text=tr("tune_title"))
-        box.pack(fill="x", padx=12, pady=12)
-        trucks = ttk.LabelFrame(box, text=tr("tune_trucks"))
-        trucks.pack(fill="x", padx=10, pady=8)
+        accent = dict(palette)[appearance["accent"]]
+        bg = "#080d12" if appearance["mode"] == "night" else "#eaf0f5"
+        panel = "#111a22" if appearance["mode"] == "night" else "#ffffff"
+        ink = "#edf5fb" if appearance["mode"] == "night" else "#172330"
+        muted = "#8494a3" if appearance["mode"] == "night" else "#647687"
+        gold = "#f5a742"
+        tab.configure(style="Tune.TFrame")
+        style.configure("Tune.TFrame", background=bg)
+        style.configure("TuneCard.TFrame", background=panel)
+        style.configure("TuneTitle.TLabel", background=panel, foreground=ink,
+                        font=("Segoe UI Semibold", 13))
+        style.configure("TuneMuted.TLabel", background=panel, foreground=muted,
+                        font=("Segoe UI", 9))
+        style.configure("TuneValue.TLabel", background=panel, foreground=ink,
+                        font=("Segoe UI Semibold", 18))
+        style.configure("TuneAccent.TLabel", background=panel, foreground=accent,
+                        font=("Segoe UI Semibold", 9))
+        style.configure("TuneGold.TLabel", background=panel, foreground=gold,
+                        font=("Segoe UI Semibold", 9))
+
+        outer = ttk.Frame(tab, style="Tune.TFrame")
+        outer.pack(fill="both", expand=True, padx=14, pady=12)
+        header = ttk.Frame(outer, style="Tune.TFrame")
+        header.pack(fill="x", pady=(0, 10))
+        ttk.Label(header, text="HAULER / PERFORMANCE LAB", style="TuneAccent.TLabel",
+                  background=bg).pack(side="left")
+        ttk.Label(header, text=tr("tune_title"), style="TuneTitle.TLabel",
+                  background=bg).pack(side="right")
+
+        row = ttk.Frame(outer, style="Tune.TFrame")
+        row.pack(fill="both", expand=True)
+        left = ttk.Frame(row, style="TuneCard.TFrame", padding=12)
+        left.pack(side="left", fill="y", padx=(0, 10))
+        right = ttk.Frame(row, style="Tune.TFrame")
+        right.pack(side="left", fill="both", expand=True)
+
+        ttk.Label(left, text=tr("tune_trucks"), style="TuneAccent.TLabel").pack(anchor="w", pady=(2, 7))
         for name, variable in tune_truck_vars.items():
-            ttk.Checkbutton(trucks, text=name, variable=variable).pack(anchor="w", padx=8, pady=3)
-        factors = ttk.Frame(box)
-        factors.pack(anchor="w", padx=10, pady=8)
-        ttk.Label(factors, text=tr("tune_torque")).grid(row=0, column=0, sticky="w", padx=4, pady=5)
-        ttk.Spinbox(factors, from_=1.0, to=3.0, increment=0.1, width=8,
-                    textvariable=var_torque_factor).grid(row=0, column=1, padx=6)
-        ttk.Label(factors, text=tr("tune_rpm")).grid(row=1, column=0, sticky="w", padx=4, pady=5)
-        ttk.Spinbox(factors, from_=1.0, to=1.5, increment=0.05, width=8,
-                    textvariable=var_rpm_factor).grid(row=1, column=1, padx=6)
-        ttk.Button(box, text=tr("tune_build"), command=build_tuning_mod).pack(anchor="w", padx=10, pady=8)
-        ttk.Label(tab, text=tr("tune_note"), wraplength=900, justify="left"
-                  ).pack(anchor="w", padx=16, pady=4)
+            ttk.Checkbutton(left, text=name, variable=variable,
+                            command=refresh_tuning_dashboard).pack(anchor="w", pady=3)
+        ttk.Separator(left).pack(fill="x", pady=10)
+        ttk.Label(left, text=tr("tune_torque"), style="TuneMuted.TLabel").pack(anchor="w")
+        ttk.Spinbox(left, from_=1.0, to=3.0, increment=0.1, width=13,
+                    textvariable=var_torque_factor,
+                    command=refresh_tuning_dashboard).pack(anchor="w", pady=(3, 9))
+        ttk.Label(left, text=tr("tune_rpm"), style="TuneMuted.TLabel").pack(anchor="w")
+        ttk.Spinbox(left, from_=1.0, to=1.5, increment=0.05, width=13,
+                    textvariable=var_rpm_factor,
+                    command=refresh_tuning_dashboard).pack(anchor="w", pady=(3, 9))
+        ttk.Button(left, text=tr("tune_build"), command=build_tuning_mod).pack(fill="x", pady=(8, 3))
+
+        hero = ttk.Frame(right, style="TuneCard.TFrame", padding=10)
+        hero.pack(fill="both", expand=True)
+        hero_head = ttk.Frame(hero, style="TuneCard.TFrame")
+        hero_head.pack(fill="x")
+        ttk.Label(hero_head, text=tr("tune_gauge"), style="TuneGold.TLabel").pack(side="left")
+        ttk.Label(hero_head, text=tr("tune_live"), style="TuneMuted.TLabel").pack(side="right")
+        gauge = tk.Canvas(hero, height=260, background=panel, highlightthickness=0)
+        gauge.pack(fill="both", expand=True, pady=(0, 3))
+        w["tune_gauge"] = gauge
+        gauge.bind("<Configure>", lambda _e: draw_tuning_gauge())
+        gauge.bind("<MouseWheel>", lambda e: set_gauge_target(var_gauge_target.get() + (5 if e.delta > 0 else -5)))
+
+        stats = ttk.Frame(right, style="Tune.TFrame")
+        stats.pack(fill="x", pady=(10, 0))
+        cards = []
+        for title, initial, suffix, color in (
+                ("tune_power", "1.50×", "TORQUE", "TuneAccent.TLabel"),
+                ("tune_rpm_short", "1.10×", "RPM", "TuneGold.TLabel"),
+                ("tune_selected", "3", "TRUCKS", "TuneAccent.TLabel")):
+            card = ttk.Frame(stats, style="TuneCard.TFrame", padding=(10, 8))
+            card.pack(side="left", fill="x", expand=True, padx=(0, 8))
+            ttk.Label(card, text=tr(title), style="TuneMuted.TLabel").pack(anchor="w")
+            value = ttk.Label(card, text=initial, style="TuneValue.TLabel")
+            value.pack(anchor="w", pady=2)
+            ttk.Label(card, text=suffix, style=color).pack(anchor="w")
+            cards.append(value)
+        w["tune_cards"] = cards
+        ttk.Label(right, text=tr("tune_gauge_note"), style="TuneMuted.TLabel",
+                  wraplength=720, justify="left").pack(anchor="w", pady=(8, 2))
+        ttk.Label(right, text=tr("tune_note"), style="TuneMuted.TLabel",
+                  wraplength=720, justify="left").pack(anchor="w", pady=(2, 0))
+        var_torque_factor.trace_add("write", refresh_tuning_dashboard)
+        var_rpm_factor.trace_add("write", refresh_tuning_dashboard)
+        draw_tuning_gauge()
+        refresh_tuning_dashboard()
+
+    def set_gauge_target(value):
+        value = max(0.0, min(300.0, float(value)))
+        var_gauge_target.set(value)
+        draw_tuning_gauge()
+
+    def draw_tuning_gauge():
+        canvas = w.get("tune_gauge")
+        if canvas is None or not canvas.winfo_exists():
+            return
+        canvas.delete("all")
+        width = max(canvas.winfo_width(), 280)
+        height = max(canvas.winfo_height(), 230)
+        cx, cy = width / 2, height * 0.91
+        radius = min(width * 0.34, height * 0.86)
+        value = max(0.0, min(300.0, needle_speed["value"]))
+        accent = dict(palette)[appearance["accent"]]
+        start, extent = 225, 270
+        bbox = (cx-radius, cy-radius, cx+radius, cy+radius)
+        canvas.create_arc(bbox, start=start, extent=extent, style="arc", outline="#273540", width=13)
+        active_extent = extent * value / 300.0
+        canvas.create_arc(bbox, start=start, extent=active_extent, style="arc", outline=accent, width=13)
+        for tick in range(0, 301, 20):
+            angle = math.radians(start + extent * tick / 300.0)
+            r1, r2 = radius - 8, radius - (22 if tick % 60 == 0 else 15)
+            x1, y1 = cx + r1 * math.cos(angle), cy - r1 * math.sin(angle)
+            x2, y2 = cx + r2 * math.cos(angle), cy - r2 * math.sin(angle)
+            canvas.create_line(x1, y1, x2, y2, fill="#718391" if tick % 60 else "#d3dde5",
+                               width=2 if tick % 60 == 0 else 1)
+            if tick % 60 == 0:
+                rt = radius - 37
+                tx, ty = cx + rt * math.cos(angle), cy - rt * math.sin(angle)
+                canvas.create_text(tx, ty, text=str(tick), fill="#aab8c5", font=("Segoe UI", 9))
+        angle = math.radians(start + extent * value / 300.0)
+        tipx, tipy = cx + (radius - 48) * math.cos(angle), cy - (radius - 48) * math.sin(angle)
+        canvas.create_line(cx, cy, tipx, tipy, fill="#f5a742", width=4, capstyle="round")
+        canvas.create_oval(cx-7, cy-7, cx+7, cy+7, fill="#f5a742", outline="")
+        canvas.create_text(cx, cy - radius*0.37, text=f"{int(round(value))}", fill="#f4f8fb",
+                           font=("Segoe UI Semibold", 32))
+        canvas.create_text(cx, cy - radius*0.15, text="km/h  ·  ESTIMATE", fill="#90a0ad",
+                           font=("Segoe UI Semibold", 9))
+
+    def refresh_tuning_dashboard(*_):
+        try:
+            rpm = max(1.0, min(1.5, float(var_rpm_factor.get())))
+            torque = max(1.0, min(3.0, float(var_torque_factor.get())))
+        except (ValueError, tk.TclError):
+            return
+        target = 90.0 * rpm
+        var_gauge_target.set(target)
+        needle_speed["target"] = target
+        animate_gauge()
+        cards = w.get("tune_cards", [])
+        if len(cards) == 3:
+            cards[0].configure(text=f"{torque:.2f}×")
+            cards[1].configure(text=f"{rpm:.2f}×")
+            cards[2].configure(text=str(sum(v.get() for v in tune_truck_vars.values())))
+        draw_tuning_gauge()
+
+    def animate_gauge():
+        needle_speed["job"] = None
+        delta = needle_speed["target"] - needle_speed["value"]
+        if abs(delta) < 0.4:
+            needle_speed["value"] = needle_speed["target"]
+            draw_tuning_gauge()
+            return
+        needle_speed["value"] += delta * 0.16
+        draw_tuning_gauge()
+        needle_speed["job"] = root.after(16, animate_gauge)
 
     def build_tuning_mod():
         base = Path(var_dir.get().strip()) if var_dir.get().strip() else None
