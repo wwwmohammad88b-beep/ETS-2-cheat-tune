@@ -1542,11 +1542,6 @@ def run_gui():
             button.pack(fill="x", padx=10, pady=2)
             nav_buttons[key] = button
         w["pages"], w["nav_buttons"] = pages, nav_buttons
-        build_save(t1)
-        build_extras(t2)
-        build_mods(t3)
-        build_settings(t4)
-        build_tuning(t5)
         foot = ttk.Frame(content)
         foot.pack(fill="x", padx=16, pady=(0, 5))
         ttk.Button(foot, text=tr("max_all"), command=max_all).pack(side="left", padx=3)
