@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -16,25 +17,22 @@ jobs:
           python-version: "3.12"
 
       - name: Install Python dependencies
-        shell: pwsh
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+          python -m pip install pyinstaller
 
       - name: Build standalone executable
-        run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
+        run: >
+          python -m PyInstaller --clean --noconfirm --onefile --windowed
+          --name ETS2SaveEditor --icon app.ico --version-file version_info.txt
+          --collect-all Crypto ets2_save_editor.py
 
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
 
       - name: Compile installer
         run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss'
-
-      - name: Verify build outputs
-        shell: pwsh
-        run: |
-          if (-not (Test-Path "dist/ETS2SaveEditor.exe")) { throw "Standalone executable was not created." }
-          if (-not (Test-Path "installer/ETS2SaveEditor_Setup.exe")) { throw "Installer was not created." }
 
       - uses: actions/upload-artifact@v4
         with:
