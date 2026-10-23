@@ -2568,7 +2568,7 @@ def run_gui():
         style.configure("TLabelFrame.Label", background=panel, foreground=accent,
                         font=("Segoe UI Semibold", 10))
         style.configure("TButton", background=panel, foreground=fg,
-                        bordercolor="#2a3a47" if night else "#cbd6df", padding=(12, 7), relief="flat")
+                        bordercolor=c["border"], padding=(12, 7), relief="flat")
         style.map("TButton", background=[("active", c["accent_hover"]), ("pressed", accent)],
                   foreground=[("active", c["accent_foreground"]), ("pressed", c["accent_foreground"])])
         style.configure("TCheckbutton", background=bg, foreground=fg)
