@@ -1,4 +1,4 @@
-# TR-EURO-EDITOR v2.6 (ادیتور سیو یورو تراک ۲)
+# TR-EURO-EDITOR (ادیتور سیو یورو تراک ۲)
 
 ادیتور سیو و مدیریت ماد برای نسخه‌ی **تک‌نفره** Euro Truck Simulator 2.
 رابط دوزبانه (English / فارسی) - دکمه‌ی بالا سمت راست زبان را عوض می‌کند.
@@ -15,6 +15,16 @@
 **تب Garage:** فهرست کامیون/تریلرهای ثبت‌شده برای بازیکن، مدل از مسیر قطعهٔ `data.sii`، قطعات قابل‌شناسایی، گاراژ مرتبط، مقدار کیلومترشمار، wear موتور/گیربکس/کابین/شاسی/چرخ، خسارت بدنه/بار تریلر و سطح نسبی سوخت را نمایش می‌دهد. دادهٔ ناموجود یا ارجاع مبهم با «اطلاعات در دسترس نیست» نشان داده می‌شود. ظرفیت باک از سیو به‌تنهایی تأیید نشد، پس لیتر محاسبه نمی‌شود. برای سیوهای متنیِ بدون رمز، تعمیر/سوخت‌گیری کامیون انتخابی و عملیات گروهی روی وسایل مالکیت‌شده موجود است؛ پیش از گروهی تأیید می‌گیرد. سیو رمزگذاری‌شده یا BSII در این نسخه فقط‌خواندنی است و دکمه‌های نوشتن غیرفعال می‌مانند.
 **تب تنظیمات بازی:** کنسول، حالت توسعه‌دهنده، ذخیره‌ی سیو به‌صورت متن (config.cfg).
 دکمه‌ی «همه‌چیز حداکثر» + «اعمال تغییرات»، و قبل از هر نوشتن بکاپ خودکارِ بررسی‌شده.
+
+## رابط کاربری و تم‌ها
+
+رابط پیش‌فرضِ جدید با HTML/CSS آفلاین و WebView2 ساخته شده؛ Python همچنان مسئول خواندن و نوشتن سیوهاست. هشت تم، حالت روز/شب و رنگ تأکیدی زنده دارد. اگر WebView2 نصب نباشد، برنامه با پیام روشن به رابط کلاسیک Tkinter برمی‌گردد. برای اجرای اجباری رابط قدیمی از --classic استفاده کن.
+
+## ظاهر و تم‌ها
+
+- رابط جدید از تم پیش‌فرض Midnight Cyan شروع می‌شود و هشت پالت، حالت روز/شب، accent دلخواه و Reset to Theme Default دارد.
+- پیش‌نمایش‌ها از همان رنگ‌های واقعی برنامه ساخته می‌شوند؛ تغییر تم فوراً اعمال و در پوشه تنظیمات برنامه ذخیره می‌شود.
+- رابط WebView به اینترنت، CDN، فونت یا تصویر بیرونی متصل نمی‌شود. رابط Tkinter با --classic در دسترس می‌ماند.
 
 ## محل ذخیره‌سازی
 - بکاپ سیوها داخل پوشه‌ی داده‌های بازی در `Euro Truck Simulator 2\TR-EURO-EDITOR\backups\<profile>\<save>\game.sii` ذخیره می‌شود. برای هر سیو فقط یک بکاپ چرخشی نگه داشته می‌شود و بکاپ تازه به‌شکل اتمیک جای قبلی را می‌گیرد. بکاپ‌های قدیمی نسخه‌های قبلی در `ETS2SaveEditor_Backups` پاک نمی‌شوند؛ اگر بکاپ جدیدی در مسیر تازه نباشد، آخرین بکاپ قدیمی هم قابل‌شناسایی است.
@@ -45,12 +55,12 @@
 3. در GitHub وارد تب **Actions** شو، workflow با نام **Build Windows installer** را باز کن و **Run workflow** را بزن. این workflow را می‌توانی هر بار دستی اجرا کنی.
 4. بعد از سبز شدن اجرای workflow، از بخش **Artifacts** فایل `ETS2SaveEditor-Windows` را دانلود کن. داخل ZIP خروجی، `ETS2SaveEditor.exe` و `ETS2SaveEditor_Setup.exe` قرار دارند.
 
-ساخت PyInstaller از حالت `--onefile --windowed`، آیکون `app.ico`، اطلاعات نسخه‌ی ۲٫۶، جمع‌آوری کامل بسته‌ی `Crypto` و قالب‌های سه مدل استفاده می‌کند. workflow پیش از ساخت، واردشدن AES و وجود قالب‌ها را بررسی می‌کند و در تحلیل PyInstaller به دنبال Crypto و قالب‌ها می‌گردد. برای ساخت دستی، پس از نصب Python و Inno Setup، اجرای `build.bat` کافی است؛ این اسکریپت تست‌ها را اجرا می‌کند و اگر Inno Setup نصب نباشد با خطا تمام می‌شود. فرمان‌های معادل:
+ساخت PyInstaller از حالت --onefile --windowed، آیکون app.ico، اطلاعات نسخه‌ی ۲٫۶، بسته‌ی Crypto، رابط WebView و قالب‌های سه مدل استفاده می‌کند. workflow پیش از ساخت، واردشدن AES و وجود قالب‌ها را بررسی می‌کند و در تحلیل PyInstaller به دنبال Crypto، WebView، فایل‌های رابط و قالب‌ها می‌گردد. برای ساخت دستی، پس از نصب Python و Inno Setup، اجرای build.bat کافی است؛ این اسکریپت تست‌ها را اجرا می‌کند و اگر Inno Setup نصب نباشد با خطا تمام می‌شود. فرمان‌های معادل:
 
 ```bat
 py -3.12 -m pip install -r requirements.txt
 py -3.12 -m unittest discover -s tests -v
-py -3.12 -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
+py -3.12 -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --collect-all webview --hidden-import webview.platforms.edgechromium --hidden-import clr --add-data "ui;ui" --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
 

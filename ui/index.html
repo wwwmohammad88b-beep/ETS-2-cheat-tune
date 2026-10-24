@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' blob:; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="color-scheme" content="dark light">
+  <title>TR-EURO-EDITOR</title>
+  <link rel="stylesheet" href="app.css">
+  <link id="theme-tokens" rel="stylesheet" href="">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Application navigation">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">T</div>
+        <div><strong>TR-EURO-EDITOR</strong><small>SAVE STUDIO / ETS2</small></div>
+      </div>
+      <div class="sidebar-caption" data-i18n="web_workspace">WORKSPACE</div>
+      <nav id="navigation" class="navigation"></nav>
+      <div class="sidebar-bottom">
+        <div class="game-status"><span class="status-dot"></span><span data-i18n="web_game_data">ETS2 Documents</span></div>
+        <div id="sidebar-game-path" class="path-compact"></div>
+        <button id="nav-language" class="sidebar-action" type="button" aria-label="Switch language"></button>
+        <button id="nav-theme" class="sidebar-action" type="button" aria-label="Switch day or night mode"></button>
+      </div>
+    </aside>
+    <section class="workspace">
+      <header class="topbar">
+        <div class="crumbs"><span class="crumb-mark">◈</span><span id="top-profile">No profile</span><span class="crumb-sep">/</span><span id="top-save">No save</span></div>
+        <div class="top-actions">
+          <button id="choose-game" class="button button-subtle" type="button" data-i18n="web_choose_game">Choose Documents folder</button>
+          <span id="save-format" class="pill">—</span>
+          <span id="save-state" class="pill pill-muted">—</span>
+        </div>
+      </header>
+      <main id="app-page" class="page-host" tabindex="-1"></main>
+      <footer class="statusbar"><span id="status-dot" class="status-dot"></span><span id="status-text" role="status" aria-live="polite">Ready</span><span class="status-spacer"></span><span id="status-path" class="status-path"></span></footer>
+    </section>
+  </div>
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+</body>
+</html>

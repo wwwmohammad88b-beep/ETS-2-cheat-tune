@@ -433,14 +433,14 @@ class SiiError(Exception):
 # used, and every preset provides the semantic roles consumed by ttk and the
 # custom Tk/Canvas widgets.
 THEME_PRESETS = {
-    "midnight_cyan": {"name": "Midnight Cyan", "mode": "night", "background": "#080f18", "surface": "#101a25", "card": "#142230", "sidebar": "#0a141e", "text_primary": "#eef7fc", "text_secondary": "#a6bac8", "accent": "#38bdf8", "accent_hover": "#65d0ff", "border": "#263c4c", "success": "#34d399", "warning": "#fbbf24", "error": "#fb7185", "gauge_background": "#253644", "gauge_foreground": "#dff6ff", "input_background": "#0b1520", "input_foreground": "#eef7fc"},
-    "racing_red": {"name": "Racing Red", "mode": "night", "background": "#100d10", "surface": "#1c171b", "card": "#241d22", "sidebar": "#151115", "text_primary": "#fff4f5", "text_secondary": "#c1adb1", "accent": "#f04452", "accent_hover": "#ff6975", "border": "#433038", "success": "#43d6a1", "warning": "#ffc65c", "error": "#ff6875", "gauge_background": "#3b2c32", "gauge_foreground": "#fff0f1", "input_background": "#181316", "input_foreground": "#fff4f5"},
-    "arctic_blue": {"name": "Arctic Blue", "mode": "night", "background": "#09131c", "surface": "#101f2b", "card": "#152936", "sidebar": "#0b1924", "text_primary": "#f0f9ff", "text_secondary": "#a9c1ce", "accent": "#38a9ff", "accent_hover": "#72c7ff", "border": "#294354", "success": "#3dd6b0", "warning": "#f4c46c", "error": "#ff7885", "gauge_background": "#29404e", "gauge_foreground": "#e6f7ff", "input_background": "#0b1924", "input_foreground": "#f0f9ff"},
-    "emerald": {"name": "Emerald", "mode": "night", "background": "#0a1210", "surface": "#111e19", "card": "#172720", "sidebar": "#0d1813", "text_primary": "#effaf3", "text_secondary": "#afc6b6", "accent": "#34c985", "accent_hover": "#63e0a5", "border": "#2b4638", "success": "#42d392", "warning": "#f4c66f", "error": "#ff7f83", "gauge_background": "#2c4035", "gauge_foreground": "#e7fff1", "input_background": "#0c1712", "input_foreground": "#effaf3"},
-    "purple_neon": {"name": "Purple Neon", "mode": "night", "background": "#100d19", "surface": "#1a1526", "card": "#211b30", "sidebar": "#141020", "text_primary": "#f7f2ff", "text_secondary": "#baafcc", "accent": "#ae78f5", "accent_hover": "#c49aff", "border": "#403253", "success": "#43d7a5", "warning": "#f5c568", "error": "#ff748d", "gauge_background": "#3a3049", "gauge_foreground": "#f2eaff", "input_background": "#151020", "input_foreground": "#f7f2ff"},
-    "amber_truck": {"name": "Amber Truck", "mode": "night", "background": "#13100b", "surface": "#201a10", "card": "#292116", "sidebar": "#19140d", "text_primary": "#fff8ea", "text_secondary": "#c9b99c", "accent": "#f2a93b", "accent_hover": "#ffc468", "border": "#4a3a22", "success": "#42ce98", "warning": "#ffd166", "error": "#ff7880", "gauge_background": "#473822", "gauge_foreground": "#fff4d9", "input_background": "#18130c", "input_foreground": "#fff8ea"},
-    "silver_steel": {"name": "Silver Steel", "mode": "night", "background": "#101519", "surface": "#1a2228", "card": "#222c33", "sidebar": "#151d22", "text_primary": "#f2f6f8", "text_secondary": "#b2c0c8", "accent": "#8db9d2", "accent_hover": "#b1d7ea", "border": "#3a4851", "success": "#48c99c", "warning": "#edc46e", "error": "#f27d83", "gauge_background": "#3b484f", "gauge_foreground": "#edf5f8", "input_background": "#151d22", "input_foreground": "#f2f6f8"},
-    "light_professional": {"name": "Light Professional", "mode": "day", "background": "#edf2f6", "surface": "#f6f8fa", "card": "#ffffff", "sidebar": "#e4ebf1", "text_primary": "#192936", "text_secondary": "#586c7b", "accent": "#167db5", "accent_hover": "#086b9f", "border": "#cbd7df", "success": "#168452", "warning": "#a56800", "error": "#bb3544", "gauge_background": "#d5e0e7", "gauge_foreground": "#253c4b", "input_background": "#ffffff", "input_foreground": "#192936"},
+    "midnight_cyan": {"name": "Midnight Cyan", "mode": "night", "background": "#080f18", "surface": "#101a25", "card": "#142230", "sidebar": "#0a141e", "text_primary": "#eef7fc", "text_secondary": "#a6bac8", "accent": "#00e5ff", "accent_hover": "#65d0ff", "border": "#263c4c", "success": "#34d399", "warning": "#fbbf24", "error": "#fb7185", "gauge_background": "#253644", "gauge_foreground": "#dff6ff", "input_background": "#0b1520", "input_foreground": "#eef7fc"},
+    "racing_red": {"name": "Racing Red", "mode": "night", "background": "#100d10", "surface": "#1c171b", "card": "#241d22", "sidebar": "#151115", "text_primary": "#fff4f5", "text_secondary": "#c1adb1", "accent": "#ff3b30", "accent_hover": "#ff6975", "border": "#433038", "success": "#43d6a1", "warning": "#ffc65c", "error": "#ff6875", "gauge_background": "#3b2c32", "gauge_foreground": "#fff0f1", "input_background": "#181316", "input_foreground": "#fff4f5"},
+    "arctic_blue": {"name": "Arctic Blue", "mode": "night", "background": "#09131c", "surface": "#101f2b", "card": "#152936", "sidebar": "#0b1924", "text_primary": "#f0f9ff", "text_secondary": "#a9c1ce", "accent": "#3b82f6", "accent_hover": "#72c7ff", "border": "#294354", "success": "#3dd6b0", "warning": "#f4c46c", "error": "#ff7885", "gauge_background": "#29404e", "gauge_foreground": "#e6f7ff", "input_background": "#0b1924", "input_foreground": "#f0f9ff"},
+    "emerald": {"name": "Emerald", "mode": "night", "background": "#0a1210", "surface": "#111e19", "card": "#172720", "sidebar": "#0d1813", "text_primary": "#effaf3", "text_secondary": "#afc6b6", "accent": "#10b981", "accent_hover": "#63e0a5", "border": "#2b4638", "success": "#42d392", "warning": "#f4c66f", "error": "#ff7f83", "gauge_background": "#2c4035", "gauge_foreground": "#e7fff1", "input_background": "#0c1712", "input_foreground": "#effaf3"},
+    "purple_neon": {"name": "Purple Neon", "mode": "night", "background": "#100d19", "surface": "#1a1526", "card": "#211b30", "sidebar": "#141020", "text_primary": "#f7f2ff", "text_secondary": "#baafcc", "accent": "#a855f7", "accent_hover": "#c49aff", "border": "#403253", "success": "#43d7a5", "warning": "#f5c568", "error": "#ff748d", "gauge_background": "#3a3049", "gauge_foreground": "#f2eaff", "input_background": "#151020", "input_foreground": "#f7f2ff"},
+    "amber_truck": {"name": "Amber Truck", "mode": "night", "background": "#13100b", "surface": "#201a10", "card": "#292116", "sidebar": "#19140d", "text_primary": "#fff8ea", "text_secondary": "#c9b99c", "accent": "#f59e0b", "accent_hover": "#ffc468", "border": "#4a3a22", "success": "#42ce98", "warning": "#ffd166", "error": "#ff7880", "gauge_background": "#473822", "gauge_foreground": "#fff4d9", "input_background": "#18130c", "input_foreground": "#fff8ea"},
+    "silver_steel": {"name": "Silver Steel", "mode": "night", "background": "#101519", "surface": "#1a2228", "card": "#222c33", "sidebar": "#151d22", "text_primary": "#f2f6f8", "text_secondary": "#b2c0c8", "accent": "#94a3b8", "accent_hover": "#b1d7ea", "border": "#3a4851", "success": "#48c99c", "warning": "#edc46e", "error": "#f27d83", "gauge_background": "#3b484f", "gauge_foreground": "#edf5f8", "input_background": "#151d22", "input_foreground": "#f2f6f8"},
+    "light_professional": {"name": "Light Professional", "mode": "day", "background": "#edf2f6", "surface": "#f6f8fa", "card": "#ffffff", "sidebar": "#e4ebf1", "text_primary": "#192936", "text_secondary": "#586c7b", "accent": "#3b82f6", "accent_hover": "#086b9f", "border": "#cbd7df", "success": "#168452", "warning": "#a56800", "error": "#bb3544", "gauge_background": "#d5e0e7", "gauge_foreground": "#253c4b", "input_background": "#ffffff", "input_foreground": "#192936"},
 }
 THEME_FIELDS = ("background", "surface", "card", "sidebar", "text_primary",
                 "text_secondary", "accent", "accent_hover", "border", "success",
@@ -473,7 +473,7 @@ def theme_colors(theme_id, mode=None, custom_accent=None):
     if isinstance(custom_accent, str) and re.fullmatch(r"#[0-9a-fA-F]{6}", custom_accent):
         colors["accent"] = custom_accent.lower()
         colors["accent_hover"] = _accent_hover(custom_accent)
-    colors["accent_foreground"] = "#07111a" if _color_luminance(colors["accent"]) > 0.52 else "#ffffff"
+    colors["accent_foreground"] = best_text_on(colors["accent"])
     return colors
 
 
@@ -486,6 +486,93 @@ def _color_luminance(value):
 def _accent_hover(value):
     rgb = [int(value[i:i + 2], 16) for i in (1, 3, 5)]
     return "#" + "".join(f"{min(255, int(v + (255 - v) * 0.18)):02x}" for v in rgb)
+
+
+def contrast_ratio(a, b):
+    """WCAG contrast ratio between two #rrggbb colours (1.0 .. 21.0)."""
+    la, lb = _color_luminance(a), _color_luminance(b)
+    hi, lo = (la, lb) if la >= lb else (lb, la)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def best_text_on(background, dark="#07111a", light="#ffffff"):
+    """Pick whichever of the dark/light text colours is more readable on `background`."""
+    return dark if contrast_ratio(background, dark) >= contrast_ratio(background, light) else light
+
+
+def normalize_hex_color(value):
+    """Return '#rrggbb' (lower case) for '#rgb'/'#rrggbb'/'rrggbb' input, else None."""
+    if not isinstance(value, str):
+        return None
+    text = value.strip()
+    if re.fullmatch(r"#?[0-9a-fA-F]{3}", text):
+        text = text.lstrip("#")
+        text = "".join(ch * 2 for ch in text)
+    elif re.fullmatch(r"#?[0-9a-fA-F]{6}", text):
+        text = text.lstrip("#")
+    else:
+        return None
+    return "#" + text.lower()
+
+
+def blend_colors(first, second, amount):
+    """Linear mix: amount=0 -> first, amount=1 -> second (both #rrggbb)."""
+    amount = max(0.0, min(1.0, float(amount)))
+    a = [int(first[i:i + 2], 16) for i in (1, 3, 5)]
+    b = [int(second[i:i + 2], 16) for i in (1, 3, 5)]
+    return "#" + "".join(f"{round(x + (y - x) * amount):02x}" for x, y in zip(a, b))
+
+
+# Legacy named accents used by earlier builds (migrated to custom_accent on load).
+LEGACY_ACCENTS = {"Sky": "#38bdf8", "Amber": "#f59e0b", "Emerald": "#34d399",
+                  "Violet": "#a78bfa", "Rose": "#fb7185", "Ice": "#e2e8f0"}
+DEFAULT_THEME = "midnight_cyan"
+
+
+def sanitize_appearance(data):
+    """Validate saved UI settings; unknown/invalid values fall back to safe defaults.
+
+    Returns {"theme", "mode", "custom_accent"}; custom_accent is None when the theme's own
+    accent is used and mode is always "day" or "night".
+    """
+    data = data if isinstance(data, dict) else {}
+    theme = data.get("theme")
+    if theme not in THEME_PRESETS:
+        theme = DEFAULT_THEME
+    mode = data.get("mode")
+    if mode not in ("day", "night"):
+        mode = THEME_PRESETS[theme]["mode"]
+    accent = normalize_hex_color(data.get("custom_accent"))
+    if accent is None:
+        accent = LEGACY_ACCENTS.get(data.get("accent"))
+    return {"theme": theme, "mode": mode, "custom_accent": accent}
+
+
+def readable_on(color, background, minimum=4.5):
+    """Nudge `color` toward black/white until it reaches `minimum` contrast on `background`."""
+    if contrast_ratio(color, background) >= minimum:
+        return color
+    target = "#ffffff" if _color_luminance(background) < 0.4 else "#000000"
+    for step in range(1, 21):
+        candidate = blend_colors(color, target, step / 20)
+        if contrast_ratio(candidate, background) >= minimum:
+            return candidate
+    return target
+
+
+def ui_palette(appearance):
+    """Palette used by the interface: theme colours plus derived, theme-aware roles."""
+    c = theme_colors(appearance["theme"], appearance["mode"], appearance.get("custom_accent"))
+    c["nav_selected"] = blend_colors(c["sidebar"], c["accent"], 0.22)
+    c["brand_background"] = blend_colors(c["sidebar"], c["accent"], 0.18)
+    c["text_dim"] = blend_colors(c["text_secondary"], c["background"], 0.32)
+    c["accent_soft"] = blend_colors(c["card"], c["accent"], 0.16)
+    # accent used as *text* (labels, headings) must stay readable on cards, sidebar and surface
+    text_accent = c["accent"]
+    for bg in (c["card"], c["surface"], c["sidebar"], c["background"]):
+        text_accent = readable_on(text_accent, bg)
+    c["accent_text"] = text_accent
+    return c
 
 
 def save_writes_supported(kind, encrypted):
@@ -2480,6 +2567,174 @@ T = {
     "theme_reset_accent": ("Reset to theme default", "بازگشت به رنگ پیش‌فرض تم"),
     "theme_color_title": ("Choose an accent color", "رنگ تأکیدی را انتخاب کن"),
 }
+T.update({
+    "set_theme_hint": ("Pick a theme. It applies instantly (no restart) and is remembered next time.",
+                       "یک تم انتخاب کن. بلافاصله (بدون راه‌اندازی دوباره) اعمال می‌شود و دفعه‌ی بعد هم یادش می‌ماند."),
+    "set_accent": ("Accent colour", "رنگ تأکیدی"),
+    "accent_hex": ("Hex colour", "کد رنگ"),
+    "accent_apply": ("Apply", "اعمال"),
+    "accent_reset": ("Reset to Theme Default", "بازگشت به پیش‌فرض تم"),
+    "accent_theme_default": ("Theme default", "پیش‌فرض تم"),
+    "accent_custom": ("Custom", "دلخواه"),
+    "accent_invalid": ("Enter a colour like #38bdf8 (3 or 6 hex digits).",
+                       "یک رنگ مثل #38bdf8 وارد کن (۳ یا ۶ رقم هگز)."),
+    "accent_saved": ("Accent colour: {c}", "رنگ تأکیدی: {c}"),
+    "theme_applied": ("Theme: {name}", "تم: {name}"),
+    "theme_reset": ("Accent colour and day/night mode reset to the theme default.",
+                    "رنگ تأکیدی و حالت روز/شب به پیش‌فرض تم برگشت."),
+    "theme_mode_night": ("NIGHT", "شب"),
+    "theme_mode_day": ("DAY", "روز"),
+    "set_appearance_note": ("Saved automatically in {p}", "به‌صورت خودکار ذخیره می‌شود در {p}"),
+    "settings_save_failed": ("Could not save the appearance settings; they apply for this session only.",
+                             "ذخیره‌ی تنظیمات ظاهر ممکن نشد؛ فقط برای همین نشست اعمال می‌شوند."),
+})
+
+
+THEME_NAMES_FA = {"midnight_cyan": "فیروزه‌ای نیمه‌شب", "racing_red": "قرمز مسابقه",
+                  "arctic_blue": "آبی قطبی", "emerald": "زمرد", "purple_neon": "بنفش نئونی",
+                  "amber_truck": "کهربایی کامیون", "silver_steel": "فولاد نقره‌ای",
+                  "light_professional": "روشن حرفه‌ای"}
+T.update({
+    "web_workspace": ("WORKSPACE", "فضای کار"),
+    "web_game_data": ("ETS2 Documents", "اسناد یورو تراک"),
+    "web_choose_game": ("Choose Documents folder", "انتخاب پوشه Documents"),
+    "web_no_profile": ("No profile selected", "پروفایلی انتخاب نشده"),
+    "web_no_save": ("No save selected", "سیوی انتخاب نشده"),
+    "web_overview": ("A clear snapshot of your selected career save.", "نمایی از اطلاعات واقعی سیو انتخاب‌شده."),
+    "web_career_snapshot": ("Career snapshot", "نمای کلی مسیر"),
+    "web_fleet_snapshot": ("Fleet overview", "نمای ناوگان"),
+    "web_account_balance": ("Account balance", "موجودی حساب"),
+    "web_driver_level": ("Driver level", "سطح راننده"),
+    "web_experience": ("Experience points", "امتیاز تجربه"),
+    "web_owned_trucks": ("Owned trucks", "کامیون‌های مالکیت‌شده"),
+    "web_owned_trailers": ("Owned trailers", "تریلرهای مالکیت‌شده"),
+    "web_garages": ("Populated garages", "گاراژهای دارای وسیله"),
+    "web_distance": ("Known truck distance", "مسافت ثبت‌شدهٔ کامیون‌ها"),
+    "web_activity": ("Save details", "جزئیات سیو"),
+    "web_progress": ("Verified values", "مقادیر قابل‌استخراج"),
+    "web_no_fabricated": ("Only values found in this save are shown. Unavailable fields are not estimated.", "فقط داده‌های موجود در سیو نمایش داده می‌شوند؛ برای موارد ناموجود عدد تخمینی ساخته نمی‌شود."),
+    "web_unavailable": ("Information unavailable", "اطلاعات در دسترس نیست"),
+    "web_profile": ("Profile", "پروفایل"),
+    "web_save": ("Save", "سیو"),
+    "web_select_profile": ("Select a profile", "انتخاب پروفایل"),
+    "web_select_save": ("Select a save", "انتخاب سیو"),
+    "web_modified": ("Last modified", "آخرین تغییر"),
+    "web_save_format": ("Save format", "قالب سیو"),
+    "web_read_only": ("Read only", "فقط‌خواندنی"),
+    "web_writable": ("Editable text save", "سیو متنی قابل‌ویرایش"),
+    "web_apply": ("Apply changes", "اعمال تغییرات"),
+    "web_backup": ("Rolling backup", "بکاپ چرخشی"),
+    "web_restore": ("Restore backup", "بازیابی بکاپ"),
+    "web_restore_confirm": ("Restore the selected rolling backup? The current save will be backed up first.", "بکاپ چرخشی بازیابی شود؟ ابتدا از سیو فعلی بکاپ گرفته می‌شود."),
+    "web_money": ("Money (€)", "پول (€)"),
+    "web_xp": ("Experience (XP)", "تجربه (XP)"),
+    "web_level": ("Level", "سطح"),
+    "web_skills": ("Skills", "مهارت‌ها"),
+    "web_adr": ("ADR classes", "کلاس‌های ADR"),
+    "web_unlock_cities": ("Unlock known cities", "بازکردن شهرهای شناخته‌شده"),
+    "web_select_truck": ("Select truck", "انتخاب کامیون"),
+    "web_truck_info": ("Truck information", "اطلاعات کامیون"),
+    "web_tuning_estimate": ("Estimated performance · not live telemetry", "عملکرد تخمینی · تله‌متری زنده نیست"),
+    "web_rpm": ("RPM", "دور موتور"),
+    "web_speed": ("Speed", "سرعت"),
+    "web_power": ("Power", "توان"),
+    "web_torque": ("Torque", "گشتاور"),
+    "web_accel": ("0–100 estimate", "تخمین صفر تا ۱۰۰"),
+    "web_top_speed": ("Top speed estimate", "تخمین سرعت نهایی"),
+    "web_gear_count": ("Forward gears", "دنده‌های جلو"),
+    "web_differential": ("Differential ratio", "نسبت دیفرانسیل"),
+    "web_engine_brake": ("Engine brake", "ترمز موتوری"),
+    "web_retarder": ("Retarder", "ریتاردر"),
+    "web_mass": ("Truck + cargo mass (kg)", "وزن کامیون و بار (کیلوگرم)"),
+    "web_suggest": ("Suggest setup", "پیشنهاد تنظیمات"),
+    "web_build_mod": ("Build selectable parts mod", "ساخت ماد قطعات قابل‌خرید"),
+    "web_save_preset": ("Save setup", "ذخیره تنظیمات"),
+    "web_load_preset": ("Load setup", "بارگذاری تنظیمات"),
+    "web_preset_name": ("Setup name", "نام تنظیمات"),
+    "web_compatibility": ("Compatibility versions (optional)", "نسخه‌های سازگار (اختیاری)"),
+    "web_garage_city": ("Garage / city", "گاراژ / شهر"),
+    "web_model": ("Truck definition", "شناسهٔ کامیون"),
+    "web_chassis": ("Chassis", "شاسی"),
+    "web_cabin": ("Cabin", "کابین"),
+    "web_engine_part": ("Engine part", "قطعهٔ موتور"),
+    "web_transmission": ("Transmission", "گیربکس"),
+    "web_transmission_wear": ("Transmission wear", "فرسودگی گیربکس"),
+    "web_cabin_wear": ("Cabin wear", "فرسودگی کابین"),
+    "web_chassis_wear": ("Chassis wear", "فرسودگی شاسی"),
+    "web_wheels_wear": ("Wheel wear", "فرسودگی چرخ‌ها"),
+    "web_license_plate": ("License plate", "پلاک"),
+    "web_odometer": ("Odometer", "کیلومترشمار"),
+    "web_damage": ("Wear / damage", "فرسودگی / خسارت"),
+    "web_fuel": ("Relative fuel", "سطح نسبی سوخت"),
+    "web_repair": ("Repair", "تعمیر"),
+    "web_refuel": ("Refuel", "سوخت‌گیری"),
+    "web_group_repair": ("Repair owned fleet", "تعمیر ناوگان مالکیت‌شده"),
+    "web_group_refuel": ("Refuel owned trucks", "سوخت‌گیری کامیون‌های مالکیت‌شده"),
+    "web_group_confirm": ("Run {action} for {count} listed owned vehicles? The game must be closed. The existing rolling backup policy will run first.", "{action} روی {count} وسیلهٔ فهرست‌شده اجرا شود؟ بازی باید بسته باشد و سیاست فعلی بکاپ چرخشی پیش از نوشتن اجرا می‌شود."),
+    "web_engine": ("Engine", "موتور"),
+    "web_gearbox": ("Gearbox", "گیربکس"),
+    "web_brakes": ("Brakes & handling", "ترمز و هندلینگ"),
+    "web_weight": ("Weight", "وزن"),
+    "web_profiles_saves": ("Profiles & saves", "پروفایل‌ها و سیوها"),
+    "web_save_details": ("Save details", "جزئیات سیو"),
+    "web_game_settings": ("Game settings", "تنظیمات بازی"),
+    "web_install_path": ("ETS2 Documents path", "مسیر اسناد ETS2"),
+    "web_dev_mode": ("Developer mode", "حالت توسعه‌دهنده"),
+    "web_console": ("In-game console", "کنسول داخل بازی"),
+    "web_text_saves": ("Editable text saves", "سیو متنی قابل‌ویرایش"),
+    "web_save_settings": ("Save game settings", "ذخیره تنظیمات بازی"),
+    "web_mod_name": ("Mod name", "نام ماد"),
+    "web_mod_status": ("Status", "وضعیت"),
+    "web_mod_order": ("Load order", "ترتیب بارگذاری"),
+    "web_mod_size": ("Size", "حجم"),
+    "web_active": ("Active", "فعال"),
+    "web_inactive": ("Disabled", "غیرفعال"),
+    "web_missing_file": ("File unavailable locally", "فایل در پوشهٔ محلی موجود نیست"),
+    "web_add_mod": ("Add mod…", "افزودن ماد…"),
+    "web_enable_all": ("Enable all", "فعال‌سازی همه"),
+    "web_disable_all": ("Disable all", "غیرفعال‌سازی همه"),
+    "web_validate": ("Validate", "اعتبارسنجی"),
+    "web_validate_static": ("Static validation does not prove in-game compatibility.", "اعتبارسنجی ایستا سازگاری داخل بازی را ثابت نمی‌کند."),
+    "web_mod_details": ("Mod details", "جزئیات ماد"),
+    "web_log": ("Game log", "لاگ بازی"),
+    "web_backup_history": ("Backup history", "تاریخچهٔ بکاپ"),
+    "web_dealers": ("Unlock dealers", "بازکردن نمایندگی‌ها"),
+    "web_open_log": ("View game log", "نمایش لاگ بازی"),
+    "web_appearance": ("Appearance & themes", "ظاهر و تم‌ها"),
+    "web_dashboard_kicker": ("CAREER / PROFILE SNAPSHOT", "نمای کلی مسیر / پروفایل"),
+    "web_tuning_kicker": ("TUNING LAB / INPUT SIMULATOR", "آزمایشگاه تیونینگ / شبیه‌ساز ورودی"),
+    "web_tuning_versions_hint": ("Optional; verify against game.log", "اختیاری؛ با game.log بررسی کن"),
+    "web_off": ("Off", "خاموش"),
+    "web_on": ("On", "روشن"),
+    "web_binary_save": ("Binary save", "سیو باینری"),
+    "web_text_save": ("Text save", "سیو متنی"),
+    "web_theme_previews": ("Theme previews", "پیش‌نمایش تم‌ها"),
+    "web_custom_accent": ("Custom accent color", "رنگ تأکیدی دلخواه"),
+    "web_reset_accent": ("Reset to Theme Default", "بازگشت به رنگ پیش‌فرض تم"),
+    "web_choose_color": ("Choose color…", "انتخاب رنگ…"),
+    "web_day_night": ("Day / night", "روز / شب"),
+    "web_theme_saved": ("Theme preference saved", "تنظیم تم ذخیره شد"),
+    "web_confirm_edit": ("Apply these edits to the selected save? A verified rolling backup will replace the previous one first.", "تغییرها روی سیو انتخاب‌شده اعمال شوند؟ ابتدا بکاپ چرخشیِ تأییدشده جایگزین نسخهٔ قبلی می‌شود."),
+    "web_success": ("Completed successfully", "با موفقیت انجام شد"),
+    "web_error": ("Operation failed", "عملیات ناموفق بود"),
+    "web_no_profiles": ("No profiles found in this folder.", "در این پوشه پروفایلی پیدا نشد."),
+    "web_no_saves": ("No saves found in this profile.", "در این پروفایل سیوی پیدا نشد."),
+    "web_no_trucks": ("No owned trucks found in the selected save.", "در سیو انتخاب‌شده کامیون مالکیت‌شده‌ای پیدا نشد."),
+    "web_select_save_first": ("Choose a profile and save first.", "ابتدا پروفایل و سیو را انتخاب کن."),
+    "web_saved_to": ("Saved to {path}", "در این مسیر ذخیره شد: {path}"),
+    "web_static_only": ("Built successfully; in-game compatibility is not verified.", "ساخت فایل انجام شد؛ سازگاری داخل بازی تأیید نشده است."),
+    "web_estimate_note": ("Performance values are estimates from the selected inputs, not live game data.", "مقادیر عملکرد بر اساس ورودی‌ها تخمینی هستند و دادهٔ زندهٔ بازی نیستند."),
+    "web_backup_not_found": ("No rolling backup is available for this save.", "برای این سیو بکاپ چرخشی موجود نیست."),
+    "web_no_log": ("The game log is unavailable.", "لاگ بازی در دسترس نیست."),
+    "web_appearance_note": ("Choose a cockpit-inspired palette. Theme changes apply immediately and are saved on this PC.", "یک پالت الهام‌گرفته از داشبورد کامیون انتخاب کن؛ تغییر تم فوراً اعمال و روی همین رایانه ذخیره می‌شود."),
+    "web_theme_colors": ("Eight themed palettes", "هشت پالت رنگی"),
+    "web_game_folder_required": ("Choose the Euro Truck Simulator 2 Documents folder to continue.", "برای ادامه پوشه Documents بازی Euro Truck Simulator 2 را انتخاب کن."),
+    "web_garage_summary": ("Owned vehicles grouped by verified garage references.", "وسایل مالکیت‌شده بر اساس ارجاع‌های معتبر گاراژ گروه‌بندی شده‌اند."),
+    "web_data_unavailable": ("Not available in this save", "در این سیو موجود نیست"),
+    "web_confirm_bulk_mods": ("Change the active mod list for this profile?", "فهرست مادهای فعال این پروفایل تغییر کند؟"),
+    "web_shortcut_hint": ("Keyboard: Ctrl+1…9 switches pages · Tab navigates controls", "صفحه‌کلید: Ctrl+۱ تا ۹ برای جابه‌جایی صفحه · Tab برای کنترل‌ها"),
+})
+
 LEVEL_FA = {"Newbie": "تازه‌کار", "Enthusiast": "علاقه‌مند", "Skilled Worker": "کارگر ماهر",
             "Professional": "حرفه‌ای", "Master": "استاد", "Instructor": "مربی", "Elite": "نخبه",
             "King of the Road": "پادشاه جاده", "Legend": "افسانه", "Divine Champion": "قهرمان الهی"}
@@ -2510,8 +2765,6 @@ def run_gui():
     root.minsize(1080, 740)
     style = ttk.Style()
 
-    palette = [("Sky", "#38bdf8"), ("Amber", "#f59e0b"), ("Emerald", "#34d399"),
-               ("Violet", "#a78bfa"), ("Rose", "#fb7185"), ("Ice", "#e2e8f0")]
     theme_cfg = editor_storage_root() / "settings" / "ui.json"
     preset_file = theme_cfg.parent / "tuning_presets.json"
     old_user_data = Path(os.environ.get("APPDATA", str(Path.home()))) / "ETS2 Save Editor"
@@ -2528,76 +2781,173 @@ def run_gui():
         saved_theme = json.loads(theme_cfg.read_text(encoding="utf-8"))
     except (OSError, ValueError, TypeError):
         saved_theme = {}
-    old_accents = {"Sky": "#38bdf8", "Amber": "#f59e0b", "Emerald": "#34d399",
-                   "Violet": "#a78bfa", "Rose": "#fb7185", "Ice": "#e2e8f0"}
-    old_accent = saved_theme.get("accent")
-    appearance = {"theme": saved_theme.get("theme", "midnight_cyan"),
-                  "mode": saved_theme.get("mode"),
-                  "custom_accent": saved_theme.get("custom_accent") or old_accents.get(old_accent),
-                  "accent": old_accent if old_accent in old_accents else "Sky"}
-    if appearance["theme"] not in THEME_PRESETS:
-        appearance["theme"] = "midnight_cyan"
-    if appearance["mode"] not in ("day", "night"):
-        appearance["mode"] = THEME_PRESETS[appearance["theme"]]["mode"]
+    appearance = sanitize_appearance(saved_theme)       # theme / mode / custom_accent
+    themed_widgets = []     # (widget, {option: palette role or callable(palette)})
+    redraw_hooks = []       # callables that repaint canvases / text tags after a theme change
+    scroll_areas = []       # scrollable settings areas (mouse-wheel routing)
 
     def colors():
-        return theme_colors(appearance["theme"], appearance["mode"], appearance["custom_accent"])
+        return ui_palette(appearance)
 
     def accent_color():
         return colors()["accent"]
 
     def save_appearance():
+        """Persist theme, mode and accent atomically. Returns False if the file can't be written."""
+        data = sanitize_appearance(appearance)
         try:
             theme_cfg.parent.mkdir(parents=True, exist_ok=True)
-            theme_cfg.write_text(json.dumps(appearance), encoding="utf-8")
+            tmp = theme_cfg.with_name(theme_cfg.name + ".tmp")
+            tmp.write_text(json.dumps(data), encoding="utf-8")
+            os.replace(tmp, theme_cfg)
+            return True
         except OSError:
-            pass
+            return False
 
     def apply_appearance():
+        """(Re)define every ttk style from the central palette. ttk widgets update instantly."""
         c = colors()
         bg, panel, card = c["background"], c["surface"], c["card"]
         fg, muted, accent = c["text_primary"], c["text_secondary"], c["accent"]
-        field = c["input_background"]
-        style.theme_use("clam")
-        style.configure(".", background=bg, foreground=fg, font=("Segoe UI", 10))
+        atext, afg, border = c["accent_text"], c["accent_foreground"], c["border"]
+        field, field_fg = c["input_background"], c["input_foreground"]
+        base_font = ("Tahoma", 10) if lang["i"] else ("Segoe UI", 10)
+        if style.theme_use() != "clam":
+            style.theme_use("clam")
+        style.configure(".", background=bg, foreground=fg, font=base_font, bordercolor=border,
+                        troughcolor=bg, focuscolor=accent, lightcolor=panel, darkcolor=panel)
         style.configure("TFrame", background=bg)
         style.configure("TLabel", background=bg, foreground=fg)
         style.configure("Muted.TLabel", background=bg, foreground=muted)
-        style.configure("TLabelFrame", background=panel, foreground=accent,
-                        bordercolor=c["border"], relief="solid", borderwidth=1)
-        style.configure("TLabelFrame.Label", background=panel, foreground=accent,
-                        font=("Segoe UI Semibold", 10))
-        style.configure("TButton", background=panel, foreground=fg,
-                        bordercolor=c["border"], padding=(12, 7), relief="flat")
-        style.map("TButton", background=[("active", c["accent_hover"]), ("pressed", accent)],
-                  foreground=[("active", c["accent_foreground"]), ("pressed", c["accent_foreground"])])
-        style.configure("TCheckbutton", background=bg, foreground=fg)
-        style.map("TCheckbutton", background=[("active", bg)])
-        style.configure("TNotebook", background=bg, bordercolor=bg)
+        style.configure("Bar.TLabel", background=panel, foreground=muted)
+        style.configure("Error.TLabel", background=bg, foreground=c["error"])
+        style.configure("Success.TLabel", background=bg, foreground=c["success"])
+        for name in ("TLabelframe", "TLabelFrame"):
+            style.configure(name, background=bg, foreground=atext, bordercolor=border,
+                            lightcolor=border, darkcolor=border, relief="solid", borderwidth=1)
+            style.configure(name + ".Label", background=bg, foreground=atext,
+                            font=("Segoe UI Semibold", 10))
+        style.configure("TButton", background=panel, foreground=fg, bordercolor=border,
+                        lightcolor=border, darkcolor=border, padding=(12, 7), relief="flat")
+        style.map("TButton",
+                  background=[("disabled", panel), ("pressed", accent), ("active", c["accent_hover"])],
+                  foreground=[("disabled", c["text_dim"]), ("pressed", afg), ("active", afg)])
+        style.configure("TCheckbutton", background=bg, foreground=fg, indicatorbackground=field,
+                        indicatorforeground=fg)
+        style.map("TCheckbutton", background=[("active", bg)], foreground=[("disabled", c["text_dim"])],
+                  indicatorbackground=[("selected", accent), ("!selected", field)],
+                  indicatorforeground=[("selected", afg)])
+        style.configure("TNotebook", background=bg, bordercolor=border)
         style.configure("TNotebook.Tab", background=panel, foreground=muted, padding=(14, 9),
                         font=("Segoe UI Semibold", 9))
-        style.map("TNotebook.Tab", background=[("selected", accent)], foreground=[("selected", c["accent_foreground"])])
-        style.configure("TEntry", fieldbackground=field, foreground=c["input_foreground"], insertcolor=fg)
-        style.configure("TCombobox", fieldbackground=field, background=panel, foreground=fg, arrowcolor=accent)
-        style.map("TCombobox", fieldbackground=[("readonly", field)], foreground=[("readonly", fg)])
+        style.map("TNotebook.Tab", background=[("selected", accent), ("active", c["accent_soft"])],
+                  foreground=[("selected", afg), ("active", fg)])
+        style.configure("TEntry", fieldbackground=field, foreground=field_fg, insertcolor=field_fg,
+                        padding=7, bordercolor=border)
+        style.map("TEntry", fieldbackground=[("disabled", panel)], foreground=[("disabled", c["text_dim"])])
+        style.configure("TCombobox", fieldbackground=field, background=panel, foreground=field_fg,
+                        arrowcolor=atext, padding=6, bordercolor=border)
+        style.map("TCombobox", fieldbackground=[("readonly", field)], foreground=[("readonly", field_fg)],
+                  selectbackground=[("readonly", field)], selectforeground=[("readonly", field_fg)])
+        style.configure("TSpinbox", fieldbackground=field, background=panel, foreground=field_fg,
+                        arrowcolor=atext, padding=5, bordercolor=border)
+        style.configure("TScrollbar", background=panel, troughcolor=bg, bordercolor=border,
+                        arrowcolor=muted, lightcolor=panel, darkcolor=panel)
+        style.map("TScrollbar", background=[("active", c["accent_soft"])])
+        style.configure("TPanedwindow", background=bg)
+        style.configure("Sash", background=border, sashthickness=6)
         style.configure("Treeview", background=card, fieldbackground=card, foreground=fg,
-                        rowheight=32, bordercolor=c["border"], relief="flat")
-        style.configure("Treeview.Heading", background=panel, foreground=accent, padding=(8, 9),
-                        font=("Segoe UI Semibold", 9))
-        style.map("Treeview", background=[("selected", accent)], foreground=[("selected", c["accent_foreground"])])
-        style.configure("TEntry", padding=7)
-        style.configure("TCombobox", padding=6)
-        style.configure("TSpinbox", padding=5)
-        style.configure("TSeparator", background=c["border"])
-        style.configure("DashCard.TFrame", background=card,
-                        bordercolor=c["border"],
-                        borderwidth=1, relief="solid")
-        style.configure("DashTitle.TLabel", background=card, foreground=fg,
-                        font=("Segoe UI Semibold", 15))
+                        rowheight=24, bordercolor=border, relief="flat", font=base_font)
+        style.configure("Treeview.Heading", background=panel, foreground=atext, padding=(8, 9),
+                        font=("Segoe UI Semibold", 9) if not lang["i"] else base_font)
+        style.map("Treeview", background=[("selected", accent)], foreground=[("selected", afg)])
+        style.configure("TSeparator", background=border)
+        style.configure("DashCard.TFrame", background=card, bordercolor=border, borderwidth=1,
+                        relief="solid")
+        style.configure("DashTitle.TLabel", background=card, foreground=fg, font=("Segoe UI Semibold", 15))
         style.configure("DashMuted.TLabel", background=card, foreground=muted)
-        style.configure("DashAccent.TLabel", background=card, foreground=accent,
+        style.configure("DashAccent.TLabel", background=card, foreground=atext,
+                        font=("Segoe UI Semibold", 9))
+        # tuning workspace
+        style.configure("Tune.TFrame", background=bg)
+        style.configure("TuneCard.TFrame", background=card, bordercolor=border, borderwidth=1, relief="solid")
+        style.configure("TuneInner.TFrame", background=card)
+        style.configure("TuneTitle.TLabel", background=card, foreground=fg, font=("Segoe UI Semibold", 13))
+        style.configure("TuneMuted.TLabel", background=card, foreground=muted, font=("Segoe UI", 9))
+        style.configure("TuneValue.TLabel", background=card, foreground=fg, font=("Segoe UI Semibold", 18))
+        style.configure("TuneAccent.TLabel", background=card, foreground=atext, font=("Segoe UI Semibold", 9))
+        style.configure("TuneGold.TLabel", background=card, foreground=c["warning"],
                         font=("Segoe UI Semibold", 9))
         root.configure(background=bg)
+        # popdown lists of comboboxes created later
+        root.option_add("*TCombobox*Listbox.background", field)
+        root.option_add("*TCombobox*Listbox.foreground", field_fg)
+        root.option_add("*TCombobox*Listbox.selectBackground", accent)
+        root.option_add("*TCombobox*Listbox.selectForeground", afg)
+
+    def _apply_roles(widget, roles, pal):
+        widget.configure(**{opt: (role(pal) if callable(role) else pal[role])
+                            for opt, role in roles.items()})
+
+    def reg(widget, **roles):
+        """Register a plain Tk widget so retheme() can recolour it; applies the current palette now."""
+        themed_widgets.append((widget, roles))
+        try:
+            _apply_roles(widget, roles, colors())
+        except tk.TclError:
+            pass
+        return widget
+
+    def tk_frame(parent, bg, **kw):
+        return reg(tk.Frame(parent, **kw), bg=bg)
+
+    def tk_label(parent, bg, fg, **kw):
+        return reg(tk.Label(parent, **kw), bg=bg, fg=fg)
+
+    def reg_text(widget):
+        """Style a tk.Text/Entry-like widget with the input colours of the palette."""
+        return reg(widget, bg="input_background", fg="input_foreground",
+                   insertbackground="input_foreground", selectbackground="accent",
+                   selectforeground="accent_foreground", highlightbackground="border",
+                   highlightcolor="accent")
+
+    def iter_widgets(widget):
+        yield widget
+        for child in widget.winfo_children():
+            yield from iter_widgets(child)
+
+    def refresh_combobox_popdowns(pal):
+        for widget in iter_widgets(root):
+            if isinstance(widget, ttk.Combobox):
+                try:
+                    popdown = root.tk.call("ttk::combobox::PopdownWindow", widget)
+                    root.tk.call(f"{popdown}.f.l", "configure", "-background", pal["input_background"],
+                                 "-foreground", pal["input_foreground"], "-selectbackground", pal["accent"],
+                                 "-selectforeground", pal["accent_foreground"])
+                except tk.TclError:
+                    pass
+
+    def retheme():
+        """Switch the whole UI to the current appearance in place: no widget is destroyed."""
+        pal = colors()
+        apply_appearance()
+        alive = []
+        for widget, roles in themed_widgets:
+            try:
+                if not widget.winfo_exists():
+                    continue
+                _apply_roles(widget, roles, pal)
+            except tk.TclError:
+                continue
+            alive.append((widget, roles))
+        themed_widgets[:] = alive
+        refresh_combobox_popdowns(pal)
+        for hook in list(redraw_hooks):
+            try:
+                hook()
+            except tk.TclError:
+                pass
+        root.update_idletasks()
 
     lang = {"i": 0}            # 0 = English, 1 = Persian
 
@@ -2636,6 +2986,8 @@ def run_gui():
     var_gauge_target = tk.DoubleVar(value=110.0)
     needle_speed = {"value": 0.0, "target": 99.0, "job": None}
     var_gver = tk.StringVar()
+    var_accent_hex = tk.StringVar()
+    var_accent_msg = tk.StringVar()
     skill_vars = {k: tk.IntVar(value=0) for k in SKILLS}
     adr_vars = [tk.BooleanVar(value=False) for _ in ADR_CLASSES]
     ex_vars = {k: tk.BooleanVar(value=False) for k in ("dealers", "repair", "refuel")}
@@ -2758,70 +3110,237 @@ def run_gui():
     container = ttk.Frame(root)
     container.pack(fill="both", expand=True)
 
+    # ---------------------------------------------------------- appearance actions
+    def accent_choices():
+        return [tr("accent_theme_default")] + list(LEGACY_ACCENTS)
+
+    def accent_label():
+        custom = appearance.get("custom_accent")
+        if custom is None:
+            return tr("accent_theme_default")
+        for name, value in LEGACY_ACCENTS.items():
+            if value == custom:
+                return name
+        return tr("accent_custom")
+
+    def theme_display_name(theme_id):
+        return THEME_NAMES_FA.get(theme_id, THEME_PRESETS[theme_id]["name"]) if lang["i"] \
+            else THEME_PRESETS[theme_id]["name"]
+
+    def commit_appearance(message=None):
+        saved = save_appearance()
+        retheme()
+        if not saved:
+            status(tr("settings_save_failed"))
+        elif message:
+            status(message)
+
+    def set_theme(theme_id):
+        if theme_id not in THEME_PRESETS:
+            return
+        appearance["theme"] = theme_id
+        appearance["mode"] = THEME_PRESETS[theme_id]["mode"]      # a theme starts in its native mode
+        commit_appearance(tr("theme_applied", name=theme_display_name(theme_id)))
+
+    def set_accent(value):
+        """value: '#rrggbb' (also '#rgb'/'rrggbb') or None for the theme default."""
+        if value is None:
+            appearance["custom_accent"] = None
+            commit_appearance(tr("accent_saved", c=tr("accent_theme_default")))
+            return True
+        normalized = normalize_hex_color(value)
+        if normalized is None:
+            return False
+        appearance["custom_accent"] = normalized
+        commit_appearance(tr("accent_saved", c=normalized))
+        return True
+
+    def reset_theme_defaults():
+        appearance["custom_accent"] = None
+        appearance["mode"] = THEME_PRESETS[appearance["theme"]]["mode"]
+        commit_appearance(tr("theme_reset"))
+
+    def toggle_theme():
+        appearance["mode"] = "day" if appearance["mode"] == "night" else "night"
+        commit_appearance()
+
+    def choose_accent_from_box(_=None):
+        box = w.get("accent_box")
+        if box is None:
+            return
+        name = box.get()
+        if name == tr("accent_theme_default"):
+            set_accent(None)
+        elif name in LEGACY_ACCENTS:
+            set_accent(LEGACY_ACCENTS[name])
+        else:
+            sync_topbar_controls()
+
+    def sync_topbar_controls():
+        box, btn = w.get("accent_box"), w.get("theme_btn")
+        if box is not None and box.winfo_exists():
+            box.set(accent_label())
+        if btn is not None and btn.winfo_exists():
+            btn.configure(text=tr("theme_day") if appearance["mode"] == "night" else tr("theme_night"))
+
+    def sync_accent_controls():
+        var_accent_hex.set(colors()["accent"])
+        swatch = w.get("accent_swatch")
+        if swatch is not None and swatch.winfo_exists():
+            swatch.delete("all")
+            swatch.create_rectangle(1, 1, 33, 33, fill=colors()["accent"], outline=colors()["border"], width=2)
+        var_accent_msg.set("")
+
+    def apply_accent_from_entry(_=None):
+        if not set_accent(var_accent_hex.get()):
+            var_accent_msg.set(tr("accent_invalid"))
+
+    def pick_accent_dialog():
+        from tkinter import colorchooser
+        try:
+            _rgb, chosen = colorchooser.askcolor(color=colors()["accent"], parent=root,
+                                                 title=tr("theme_color_title"))
+        except tk.TclError:
+            return
+        if chosen:
+            set_accent(chosen)
+
+    def paint_theme_card(cv, theme_id):
+        current = theme_id == appearance["theme"]
+        if current:
+            p = ui_palette(appearance)
+        else:
+            p = ui_palette({"theme": theme_id, "mode": THEME_PRESETS[theme_id]["mode"], "custom_accent": None})
+        now = colors()
+        cw, ch = 188, 122
+        cv.delete("all")
+        cv.create_rectangle(0, 0, cw, ch, fill=p["background"], outline="")
+        cv.create_rectangle(0, 0, 40, 92, fill=p["sidebar"], outline="")
+        cv.create_rectangle(8, 10, 32, 22, fill=p["accent"], outline="")
+        for k in range(3):
+            cv.create_rectangle(8, 32 + k * 14, 32, 40 + k * 14,
+                                fill=p["accent_soft"] if k == 0 else p["text_dim"], outline="")
+        cv.create_rectangle(48, 8, cw - 8, 24, fill=p["surface"], outline=p["border"])
+        cv.create_rectangle(48, 32, 112, 84, fill=p["card"], outline=p["border"])
+        cv.create_rectangle(120, 32, cw - 8, 84, fill=p["card"], outline=p["border"])
+        cv.create_rectangle(54, 38, 90, 42, fill=p["accent"], outline="")
+        cv.create_rectangle(54, 50, 100, 53, fill=p["text_secondary"], outline="")
+        cv.create_rectangle(54, 58, 92, 61, fill=p["text_dim"], outline="")
+        cv.create_rectangle(126, 38, 150, 52, fill=p["accent"], outline="")
+        cv.create_rectangle(126, 58, 170, 61, fill=p["text_secondary"], outline="")
+        cv.create_rectangle(0, 92, cw, ch, fill=p["surface"], outline="")
+        cv.create_text(10, 107, text=theme_display_name(theme_id), anchor="w", fill=p["text_primary"],
+                       font=("Segoe UI Semibold", 9))
+        cv.create_text(cw - 10, 107, text=tr("theme_mode_day" if p["mode"] == "day" else "theme_mode_night"),
+                       anchor="e", fill=p["text_secondary"], font=("Segoe UI", 7))
+        cv.create_rectangle(1, 1, cw - 1, ch - 1, outline=now["accent"] if current else now["border"],
+                            width=3 if current else 1)
+        if root.focus_get() is cv:
+            cv.create_rectangle(5, 5, cw - 5, ch - 5, outline=now["accent_text"], dash=(3, 3))
+        if current:
+            cv.create_rectangle(cw - 74, 4, cw - 5, 19, fill=now["accent"], outline="")
+            cv.create_text(cw - 39, 11, text=tr("theme_selected"), fill=now["accent_foreground"],
+                           font=("Segoe UI Semibold", 7))
+
+    def repaint_theme_cards():
+        for theme_id, cv in list(w.get("theme_cards", {}).items()):
+            if cv.winfo_exists():
+                paint_theme_card(cv, theme_id)
+
+    def _wheel(event):
+        if event.num == 4:
+            step = -1
+        elif event.num == 5:
+            step = 1
+        else:
+            step = -1 if event.delta > 0 else 1
+        try:
+            under = root.winfo_containing(event.x_root, event.y_root)
+        except (KeyError, tk.TclError):
+            return
+        for area, canvas in list(scroll_areas):
+            try:
+                inside = under is not None and (str(under) == str(area) or str(under).startswith(str(area) + "."))
+                if inside and canvas.winfo_exists():
+                    canvas.yview_scroll(step, "units")
+                    return
+            except tk.TclError:
+                continue
+
+    for _seq in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+        root.bind_all(_seq, _wheel, add="+")
+
+    def scrolled_frame(parent):
+        holder = ttk.Frame(parent)
+        holder.pack(fill="both", expand=True)
+        canvas = reg(tk.Canvas(holder, highlightthickness=0, bd=0), bg="background")
+        vbar = ttk.Scrollbar(holder, orient="vertical", command=canvas.yview)
+        canvas.configure(yscrollcommand=vbar.set)
+        vbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+        inner = ttk.Frame(canvas)
+        window_id = canvas.create_window((0, 0), window=inner, anchor="nw")
+        inner.bind("<Configure>", lambda _e: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.bind("<Configure>", lambda e: canvas.itemconfigure(window_id, width=e.width))
+        scroll_areas.append((holder, canvas))
+        return inner
+
+    # ---------------------------------------------------------- shell
     def build():
         for c in container.winfo_children():
             c.destroy()
+        themed_widgets.clear()
+        redraw_hooks.clear()
+        scroll_areas.clear()
         root.title("%s %s" % (tr("title"), VERSION))
-        font = ("Tahoma", 10) if lang["i"] else ("Segoe UI", 10)
         try:
             apply_appearance()
-            style.configure(".", font=font)
-            style.configure("Treeview", font=font, rowheight=24)
-            style.configure("Treeview.Heading", font=font)
         except tk.TclError:
             pass
         shell = ttk.Frame(container)
         shell.pack(fill="both", expand=True)
-        side_bg = "#0a1118" if appearance["mode"] == "night" else "#e1e9ef"
-        side_fg = "#dce9f2" if appearance["mode"] == "night" else "#263746"
-        sidebar = tk.Frame(shell, bg=side_bg, width=220)
+        sidebar = tk_frame(shell, "sidebar", width=220)
         sidebar.pack(side="right" if lang["i"] else "left", fill="y")
         sidebar.pack_propagate(False)
-        brand = tk.Frame(sidebar, bg=side_bg)
+        brand = tk_frame(sidebar, "sidebar")
         brand.pack(fill="x", padx=16, pady=(18, 24))
-        tk.Label(brand, text="T", bg="#102432", fg=dict(palette)[appearance["accent"]],
+        tk_label(brand, "brand_background", "accent_text", text="T",
                  font=("Segoe UI Semibold", 17), width=2, height=1).pack(side="left", padx=(0, 9))
-        brand_text = tk.Frame(brand, bg=side_bg)
+        brand_text = tk_frame(brand, "sidebar")
         brand_text.pack(side="left", fill="x", expand=True)
-        tk.Label(brand_text, text="TR-EURO-EDITOR", bg=side_bg, fg=side_fg,
+        tk_label(brand_text, "sidebar", "text_primary", text="TR-EURO-EDITOR",
                  justify="left", anchor="w", font=("Segoe UI Semibold", 8)).pack(anchor="w")
-        tk.Label(brand_text, text="SAVE STUDIO  /  ETS2", bg=side_bg, fg="#71899a",
+        tk_label(brand_text, "sidebar", "text_dim", text="SAVE STUDIO  /  ETS2",
                  justify="left", anchor="w", font=("Segoe UI Semibold", 7)).pack(anchor="w", pady=(2, 0))
-        tk.Label(sidebar, text="WORKSPACE" if not lang["i"] else "فضای کار", bg=side_bg, fg="#708392",
+        tk_label(sidebar, "sidebar", "text_dim", text="WORKSPACE" if not lang["i"] else "فضای کار",
                  font=("Segoe UI Semibold", 8)).pack(anchor="w", padx=18, pady=(0, 8))
         content = ttk.Frame(shell)
         content.pack(side="left", fill="both", expand=True)
-        bar_bg = "#111a22" if appearance["mode"] == "night" else "#ffffff"
-        bar = tk.Frame(content, bg=bar_bg, highlightthickness=1,
-                       highlightbackground="#253440" if appearance["mode"] == "night" else "#d6e0e8")
+        bar = reg(tk.Frame(content, highlightthickness=1), bg="surface", highlightbackground="border")
         bar.pack(fill="x", padx=18, pady=(12, 8), ipady=5)
-        tk.Label(bar, text="ETS2   /   SINGLE PLAYER", bg=bar_bg,
-                 fg="#92a5b4", font=("Segoe UI Semibold", 9)).pack(side="left", padx=(12, 10))
-        tk.Label(bar, textvariable=dash_vars["profile"], bg=bar_bg,
-                 fg=side_fg, font=("Segoe UI Semibold", 9)).pack(side="left", padx=8)
-        tk.Label(bar, text="·", bg=bar_bg, fg="#71899a").pack(side="left")
-        tk.Label(bar, textvariable=dash_vars["save"], bg=bar_bg,
-                 fg="#92a5b4", font=("Segoe UI", 9)).pack(side="left", padx=8)
-        tk.Label(bar, text="BACKUP", bg=bar_bg, fg="#71899a",
-                 font=("Segoe UI Semibold", 8)).pack(side="left", padx=(12, 3))
-        tk.Label(bar, textvariable=dash_vars["backup"], bg=bar_bg,
-                 fg="#92a5b4", font=("Segoe UI", 8)).pack(side="left", padx=3)
-        tk.Label(bar, textvariable=var_dirty, bg=bar_bg, fg="#f5a742",
-                 font=("Segoe UI Semibold", 8)).pack(side="left", padx=(9, 2))
         ttk.Button(bar, text=tr("lang_btn"), command=switch_lang).pack(side="right")
-        palette_names = [x[0] for x in palette]
-        accent_box = ttk.Combobox(bar, values=palette_names, state="readonly", width=9)
-        accent_box.set(appearance["accent"])
+        accent_box = ttk.Combobox(bar, values=accent_choices(), state="readonly", width=14)
         accent_box.pack(side="right", padx=6)
-        ttk.Label(bar, text=tr("accent")).pack(side="right")
-        def choose_accent(_=None):
-            appearance["accent"] = accent_box.get()
-            save_appearance()
-            build()
-            scan(keep=True)
-        accent_box.bind("<<ComboboxSelected>>", choose_accent)
-        ttk.Button(bar, text=tr("theme_day") if appearance["mode"] == "night" else tr("theme_night"),
-                   command=toggle_theme).pack(side="right", padx=6)
+        ttk.Label(bar, text=tr("accent"), style="Bar.TLabel").pack(side="right")
+        accent_box.bind("<<ComboboxSelected>>", choose_accent_from_box)
+        theme_btn = ttk.Button(bar, command=toggle_theme)
+        theme_btn.pack(side="right", padx=6)
+        w["accent_box"], w["theme_btn"] = accent_box, theme_btn
+        tk_label(bar, "surface", "text_secondary", text="ETS2   /   SINGLE PLAYER",
+                 font=("Segoe UI Semibold", 9)).pack(side="left", padx=(12, 10))
+        tk_label(bar, "surface", "text_primary", textvariable=dash_vars["profile"],
+                 font=("Segoe UI Semibold", 9)).pack(side="left", padx=8)
+        tk_label(bar, "surface", "text_dim", text="·").pack(side="left")
+        tk_label(bar, "surface", "text_secondary", textvariable=dash_vars["save"],
+                 font=("Segoe UI", 9)).pack(side="left", padx=8)
+        tk_label(bar, "surface", "text_dim", text="BACKUP",
+                 font=("Segoe UI Semibold", 8)).pack(side="left", padx=(12, 3))
+        tk_label(bar, "surface", "text_secondary", textvariable=dash_vars["backup"],
+                 font=("Segoe UI", 8)).pack(side="left", padx=3)
+        tk_label(bar, "surface", "warning", textvariable=var_dirty,
+                 font=("Segoe UI Semibold", 8)).pack(side="left", padx=(9, 2))
+        sync_topbar_controls()
+        redraw_hooks.append(sync_topbar_controls)
         page_host = ttk.Frame(content)
         page_host.pack(fill="both", expand=True, padx=16, pady=(2, 8))
         page_defs = [
@@ -2841,33 +3360,31 @@ def run_gui():
             builder(panel)
             pages[key] = panel
             button_text = f"  {icon}     {label}" if not lang["i"] else f"{label}     {icon}  "
-            button = tk.Button(sidebar, text=button_text, anchor="e" if lang["i"] else "w", relief="flat",
-                               bd=0, padx=12, pady=11, cursor="hand2",
-                               font=("Segoe UI Semibold", 10),
-                               command=lambda k=key: show_page(k))
+            button = reg(tk.Button(sidebar, text=button_text, anchor="e" if lang["i"] else "w",
+                                   relief="flat", bd=0, padx=12, pady=11, cursor="hand2",
+                                   font=("Segoe UI Semibold", 10), highlightthickness=1,
+                                   command=lambda k=key: show_page(k)),
+                         highlightbackground="sidebar", highlightcolor="accent_text")
             button.pack(fill="x", padx=10, pady=2)
             nav_buttons[key] = button
         w["pages"], w["nav_buttons"] = pages, nav_buttons
-        status_bg = "#0d151d" if appearance["mode"] == "night" else "#e7edf2"
-        tk.Label(content, textvariable=var_status, bg=status_bg,
-                 fg="#92a5b4" if appearance["mode"] == "night" else "#526170",
-                 anchor="w", padx=10, pady=5, font=("Segoe UI", 9)
-                 ).pack(fill="x", side="bottom")
+        tk_label(content, "surface", "text_secondary", textvariable=var_status,
+                 anchor="w", padx=10, pady=5, font=("Segoe UI", 9)).pack(fill="x", side="bottom")
         show_page(active_page["key"])
+        redraw_hooks.append(lambda: show_page(active_page["key"]))
 
     def show_page(key):
         active_page["key"] = key
         pages = w.get("pages", {})
         if key in pages:
             pages[key].tkraise()
+        c = colors()
         for name, button in w.get("nav_buttons", {}).items():
             selected = name == key
-            base_bg = "#0a1118" if appearance["mode"] == "night" else "#e1e9ef"
-            selected_bg = "#183141" if appearance["mode"] == "night" else "#c9eaf8"
-            idle_fg = "#9aabb8" if appearance["mode"] == "night" else "#506272"
-            button.configure(bg=selected_bg if selected else base_bg,
-                             fg=dict(palette)[appearance["accent"]] if selected else idle_fg,
-                             activebackground=selected_bg, activeforeground=dict(palette)[appearance["accent"]])
+            bg = c["nav_selected"] if selected else c["sidebar"]
+            fg = c["accent_text"] if selected else c["text_secondary"]
+            button.configure(bg=bg, fg=fg, activebackground=c["nav_selected"],
+                             activeforeground=c["accent_text"])
 
     def build_save(tab):
         pad = {"padx": 8, "pady": 4}
@@ -3033,10 +3550,8 @@ def run_gui():
             tree.column(key, width=width, stretch=True)
         tree.pack(fill="both", expand=True)
         st["fleet_tree"] = tree
-        detail = tk.Text(right, height=15, wrap="word", state="disabled",
-                         bg="#0d151d" if appearance["mode"] == "night" else "#ffffff",
-                         fg="#dce7ef" if appearance["mode"] == "night" else "#263746",
-                         relief="flat", borderwidth=0, padx=10, pady=8)
+        detail = reg_text(tk.Text(right, height=15, wrap="word", state="disabled",
+                                  relief="flat", borderwidth=0, padx=10, pady=8, highlightthickness=1))
         detail.pack(fill="both", expand=True)
         ttk.Label(right, text=tr("fleet_select_note"), style="Muted.TLabel",
                   wraplength=550).pack(anchor="w", pady=(7, 4))
@@ -3229,10 +3744,8 @@ def run_gui():
         inspector.pack(side="left", fill="both", expand=True, padx=(0, 5))
         ttk.Button(inspector, text=tr("ex_inspector_refresh"), command=refresh_extra_tools
                    ).pack(anchor="w", pady=(0, 6))
-        inspect_text = tk.Text(inspector, height=10, wrap="word", state="disabled",
-                               bg="#0d151d" if appearance["mode"] == "night" else "#ffffff",
-                               fg="#dce7ef" if appearance["mode"] == "night" else "#263746",
-                               relief="flat", borderwidth=0, padx=8, pady=7)
+        inspect_text = reg_text(tk.Text(inspector, height=10, wrap="word", state="disabled",
+                                        relief="flat", borderwidth=0, padx=8, pady=7, highlightthickness=1))
         inspect_text.pack(fill="both", expand=True)
         w["extras_inspector"] = inspect_text
 
@@ -3347,15 +3860,12 @@ def run_gui():
         except OSError as ex:
             err("fail", e=ex)
             return
-        window = tk.Toplevel(root)
+        window = reg(tk.Toplevel(root), bg="background")
         window.title("ETS2 game.log.txt")
         window.geometry("900x600")
         frame = ttk.Frame(window, padding=8)
         frame.pack(fill="both", expand=True)
-        text = tk.Text(frame, wrap="none", state="normal",
-                       bg="#0d151d" if appearance["mode"] == "night" else "#ffffff",
-                       fg="#dce7ef" if appearance["mode"] == "night" else "#263746",
-                       insertbackground="#dce7ef" if appearance["mode"] == "night" else "#263746")
+        text = reg_text(tk.Text(frame, wrap="none", state="normal", highlightthickness=1))
         ybar = ttk.Scrollbar(frame, orient="vertical", command=text.yview)
         xbar = ttk.Scrollbar(frame, orient="horizontal", command=text.xview)
         text.configure(yscrollcommand=ybar.set, xscrollcommand=xbar.set)
@@ -3409,59 +3919,89 @@ def run_gui():
                   ).pack(anchor="w", padx=10, pady=2)
         box = ttk.Frame(tab)
         box.pack(fill="both", expand=True, padx=8, pady=4)
-        dark = appearance["mode"] == "night"
-        txt = tk.Text(box, height=10, wrap="word", state="disabled",
-                      bg="#0d151d" if dark else "#ffffff",
-                      fg="#dce7ef" if dark else "#263746",
-                      insertbackground="#dce7ef" if dark else "#263746",
-                      selectbackground=dict(palette)[appearance["accent"]],
-                      relief="flat", borderwidth=0, padx=10, pady=8,
-                      highlightthickness=1,
-                      highlightbackground="#263744" if dark else "#d3dde5")
+        txt = reg_text(tk.Text(box, height=10, wrap="word", state="disabled",
+                               relief="flat", borderwidth=0, padx=10, pady=8, highlightthickness=1))
         sb = ttk.Scrollbar(box, command=txt.yview)
         txt.configure(yscrollcommand=sb.set)
         sb.pack(side="right", fill="y")
         txt.pack(side="left", fill="both", expand=True)
-        txt.tag_configure("ok", foreground="#34d399" if dark else "#16803c")
-        txt.tag_configure("warn", foreground="#fbbf24" if dark else "#a65400")
-        txt.tag_configure("err", foreground="#fb7185" if dark else "#bb2323")
-        txt.tag_configure("info", foreground="#38bdf8" if dark else "#12658a")
-        txt.tag_configure("head", font=("TkDefaultFont", 10, "bold"))
+        def recolor_report_tags(widget=txt):
+            if not widget.winfo_exists():
+                return
+            pal = colors()
+            widget.tag_configure("ok", foreground=pal["success"])
+            widget.tag_configure("warn", foreground=pal["warning"])
+            widget.tag_configure("err", foreground=pal["error"])
+            widget.tag_configure("info", foreground=pal["accent_text"])
+            widget.tag_configure("head", font=("TkDefaultFont", 10, "bold"))
+        recolor_report_tags()
+        redraw_hooks.append(recolor_report_tags)
         w["report"] = txt
 
     def build_settings(tab):
-        fr = ttk.LabelFrame(tab, text=tr("cfg_title"))
-        fr.pack(fill="x", padx=10, pady=10)
+        body = scrolled_frame(tab)
+        # ---- appearance
+        ap = ttk.LabelFrame(body, text=tr("appearance_title"), padding=8)
+        ap.pack(fill="x", padx=10, pady=(10, 6))
+        ttk.Label(ap, text=tr("appearance_note") + "  " + tr("set_theme_hint"), style="Muted.TLabel",
+                  wraplength=780, justify="left").pack(anchor="w", padx=4, pady=(0, 4))
+        grid = ttk.Frame(ap)
+        grid.pack(anchor="w", padx=2, pady=2)
+        w["theme_cards"] = {}
+        for index, theme_id in enumerate(THEME_PRESETS):
+            cv = reg(tk.Canvas(grid, width=188, height=122, bd=0, highlightthickness=0,
+                               takefocus=1, cursor="hand2"), bg="background")
+            cv.grid(row=index // 4, column=index % 4, padx=6, pady=6)
+            cv.bind("<Button-1>", lambda _e, t=theme_id: set_theme(t))
+            for key in ("<Return>", "<space>"):
+                cv.bind(key, lambda _e, t=theme_id: set_theme(t))
+            for key in ("<FocusIn>", "<FocusOut>"):
+                cv.bind(key, lambda _e, c=cv, t=theme_id: paint_theme_card(c, t), add="+")
+            w["theme_cards"][theme_id] = cv
+        repaint_theme_cards()
+        redraw_hooks.append(repaint_theme_cards)
+
+        ttk.Separator(ap).pack(fill="x", pady=8)
+        ttk.Label(ap, text=tr("set_accent"), style="TLabel").pack(anchor="w", padx=4)
+        accent_row = ttk.Frame(ap)
+        accent_row.pack(anchor="w", padx=4, pady=6)
+        swatch = reg(tk.Canvas(accent_row, width=34, height=34, bd=0, highlightthickness=0), bg="surface")
+        swatch.pack(side="left", padx=(0, 10))
+        w["accent_swatch"] = swatch
+        ttk.Label(accent_row, text=tr("accent_hex")).pack(side="left", padx=(0, 6))
+        hex_entry = ttk.Entry(accent_row, textvariable=var_accent_hex, width=10)
+        hex_entry.pack(side="left")
+        hex_entry.bind("<Return>", apply_accent_from_entry)
+        ttk.Button(accent_row, text=tr("accent_apply"), command=apply_accent_from_entry
+                   ).pack(side="left", padx=(6, 2))
+        ttk.Button(accent_row, text=tr("theme_accent_custom"), command=pick_accent_dialog
+                   ).pack(side="left", padx=2)
+        quick = ttk.Frame(ap)
+        quick.pack(anchor="w", padx=4, pady=(0, 6))
+        for name, value in LEGACY_ACCENTS.items():
+            chip = reg(tk.Canvas(quick, width=26, height=26, bd=0, highlightthickness=1, cursor="hand2"),
+                       bg=lambda _p, v=value: v, highlightbackground="border")
+            chip.pack(side="left", padx=3)
+            chip.bind("<Button-1>", lambda _e, v=value: set_accent(v))
+        ttk.Button(ap, text=tr("accent_reset"), command=reset_theme_defaults).pack(anchor="w", padx=4, pady=(2, 4))
+        ttk.Label(ap, textvariable=var_accent_msg, style="Error.TLabel").pack(anchor="w", padx=4)
+        ttk.Label(ap, text=tr("set_appearance_note", p=str(theme_cfg)), style="Muted.TLabel",
+                  wraplength=780, justify="left").pack(anchor="w", padx=4, pady=(4, 2))
+        sync_accent_controls()
+        redraw_hooks.append(sync_accent_controls)
+        # ---- game config
+        fr = ttk.LabelFrame(body, text=tr("cfg_title"), padding=8)
+        fr.pack(fill="x", padx=10, pady=(6, 10))
         for k, key in (("developer", "cfg_dev"), ("console", "cfg_con"), ("savefmt", "cfg_fmt")):
-            ttk.Checkbutton(fr, text=tr(key), variable=cfg_vars[k]).pack(anchor="w", padx=10, pady=6)
+            ttk.Checkbutton(fr, text=tr(key), variable=cfg_vars[k]).pack(anchor="w", padx=10, pady=4)
         row = ttk.Frame(fr)
         row.pack(anchor="w", padx=10, pady=8)
         ttk.Button(row, text=tr("cfg_load"), command=load_cfg).pack(side="left", padx=2)
         ttk.Button(row, text=tr("cfg_apply"), command=apply_cfg).pack(side="left", padx=2)
-        ttk.Label(tab, text=tr("cfg_note"), style="Muted.TLabel").pack(anchor="w", padx=14)
+        ttk.Label(fr, text=tr("cfg_note"), style="Muted.TLabel").pack(anchor="w", padx=10)
 
     def build_tuning(tab):
-        accent = dict(palette)[appearance["accent"]]
-        bg = "#080d12" if appearance["mode"] == "night" else "#eaf0f5"
-        panel = "#111a22" if appearance["mode"] == "night" else "#ffffff"
-        ink = "#edf5fb" if appearance["mode"] == "night" else "#172330"
-        muted = "#8494a3" if appearance["mode"] == "night" else "#647687"
-        gold = "#f5a742"
         tab.configure(style="Tune.TFrame")
-        style.configure("Tune.TFrame", background=bg)
-        style.configure("TuneCard.TFrame", background=panel,
-                        bordercolor="#263744" if appearance["mode"] == "night" else "#d3dde5",
-                        borderwidth=1, relief="solid")
-        style.configure("TuneTitle.TLabel", background=panel, foreground=ink,
-                        font=("Segoe UI Semibold", 13))
-        style.configure("TuneMuted.TLabel", background=panel, foreground=muted,
-                        font=("Segoe UI", 9))
-        style.configure("TuneValue.TLabel", background=panel, foreground=ink,
-                        font=("Segoe UI Semibold", 18))
-        style.configure("TuneAccent.TLabel", background=panel, foreground=accent,
-                        font=("Segoe UI Semibold", 9))
-        style.configure("TuneGold.TLabel", background=panel, foreground=gold,
-                        font=("Segoe UI Semibold", 9))
 
         outer = ttk.Frame(tab, style="Tune.TFrame")
         outer.pack(fill="both", expand=True, padx=14, pady=12)
@@ -3506,11 +4046,11 @@ def run_gui():
         ttk.Separator(left).pack(fill="x", pady=10)
         sections = ttk.Notebook(left)
         sections.pack(fill="both", expand=True, pady=(0, 8))
-        engine_tab = ttk.Frame(sections, padding=8)
-        gearbox_tab = ttk.Frame(sections, padding=8)
-        brakes_tab = ttk.Frame(sections, padding=8)
-        weight_tab = ttk.Frame(sections, padding=8)
-        preset_tab = ttk.Frame(sections, padding=8)
+        engine_tab = ttk.Frame(sections, padding=8, style="TuneInner.TFrame")
+        gearbox_tab = ttk.Frame(sections, padding=8, style="TuneInner.TFrame")
+        brakes_tab = ttk.Frame(sections, padding=8, style="TuneInner.TFrame")
+        weight_tab = ttk.Frame(sections, padding=8, style="TuneInner.TFrame")
+        preset_tab = ttk.Frame(sections, padding=8, style="TuneInner.TFrame")
         sections.add(engine_tab, text=tr("tune_tab_engine"))
         sections.add(gearbox_tab, text=tr("tune_tab_gearbox"))
         sections.add(brakes_tab, text=tr("tune_tab_brakes"))
@@ -3578,9 +4118,10 @@ def run_gui():
         hero_head.pack(fill="x")
         ttk.Label(hero_head, text=tr("tune_gauge"), style="TuneGold.TLabel").pack(side="left")
         ttk.Label(hero_head, text=tr("tune_live"), style="TuneMuted.TLabel").pack(side="right")
-        gauge = tk.Canvas(hero, height=260, background=panel, highlightthickness=0)
+        gauge = reg(tk.Canvas(hero, height=260, highlightthickness=0), bg="card")
         gauge.pack(fill="both", expand=True, pady=(0, 3))
         w["tune_gauge"] = gauge
+        redraw_hooks.append(draw_tuning_gauge)
         gauge.bind("<Configure>", lambda _e: draw_tuning_gauge())
         gauge.bind("<MouseWheel>", lambda e: set_gauge_target(var_gauge_target.get() + (5 if e.delta > 0 else -5)))
 
@@ -3652,35 +4193,40 @@ def run_gui():
         canvas.delete("all")
         width = max(canvas.winfo_width(), 280)
         height = max(canvas.winfo_height(), 230)
-        cx, cy = width / 2, height * 0.91
-        radius = min(width * 0.34, height * 0.86)
+        radius = min(width * 0.34, (height - 24) / 1.75)
+        cx = width / 2
+        cy = (height - 1.707 * radius) / 2 + radius
         value = max(0.0, needle_speed["value"])
         scale_max = max(300, int(math.ceil(value / 100.0) * 100))
-        accent = dict(palette)[appearance["accent"]]
-        start, extent = 225, 270
+        pal = colors()
+        accent = pal["accent"]
+        left_end, extent = 225, 270          # 0 km/h sits at the lower left, the scale runs clockwise
         bbox = (cx-radius, cy-radius, cx+radius, cy+radius)
-        canvas.create_arc(bbox, start=start, extent=extent, style="arc", outline="#273540", width=13)
-        active_extent = extent * value / scale_max
-        canvas.create_arc(bbox, start=start, extent=active_extent, style="arc", outline=accent, width=13)
+        canvas.create_arc(bbox, start=left_end - extent, extent=extent, style="arc",
+                          outline=pal["gauge_background"], width=13)
+        active_extent = extent * min(value, scale_max) / scale_max
+        if active_extent > 0:
+            canvas.create_arc(bbox, start=left_end - active_extent, extent=active_extent, style="arc",
+                              outline=accent, width=13)
         step = scale_max // 5
         for tick in range(0, scale_max + 1, step):
-            angle = math.radians(start + extent * tick / scale_max)
+            angle = math.radians(left_end - extent * tick / scale_max)
             r1, r2 = radius - 8, radius - (22 if tick % 60 == 0 else 15)
             x1, y1 = cx + r1 * math.cos(angle), cy - r1 * math.sin(angle)
             x2, y2 = cx + r2 * math.cos(angle), cy - r2 * math.sin(angle)
-            canvas.create_line(x1, y1, x2, y2, fill="#718391" if tick % 60 else "#d3dde5",
+            canvas.create_line(x1, y1, x2, y2, fill=pal["text_secondary"] if tick % 60 else pal["gauge_foreground"],
                                width=2 if tick % 60 == 0 else 1)
             if tick % (step * 2) == 0:
                 rt = radius - 37
                 tx, ty = cx + rt * math.cos(angle), cy - rt * math.sin(angle)
-                canvas.create_text(tx, ty, text=str(tick), fill="#aab8c5", font=("Segoe UI", 9))
-        angle = math.radians(start + extent * value / scale_max)
+                canvas.create_text(tx, ty, text=str(tick), fill=pal["text_secondary"], font=("Segoe UI", 9))
+        angle = math.radians(left_end - extent * min(value, scale_max) / scale_max)
         tipx, tipy = cx + (radius - 48) * math.cos(angle), cy - (radius - 48) * math.sin(angle)
-        canvas.create_line(cx, cy, tipx, tipy, fill="#f5a742", width=4, capstyle="round")
-        canvas.create_oval(cx-7, cy-7, cx+7, cy+7, fill="#f5a742", outline="")
-        canvas.create_text(cx, cy - radius*0.37, text=f"{int(round(value))}", fill="#f4f8fb",
+        canvas.create_line(cx, cy, tipx, tipy, fill=pal["warning"], width=4, capstyle="round")
+        canvas.create_oval(cx-7, cy-7, cx+7, cy+7, fill=pal["warning"], outline="")
+        canvas.create_text(cx, cy - radius*0.37, text=f"{int(round(value))}", fill=pal["gauge_foreground"],
                            font=("Segoe UI Semibold", 32))
-        canvas.create_text(cx, cy - radius*0.15, text="km/h  ·  ESTIMATE", fill="#90a0ad",
+        canvas.create_text(cx, cy - radius*0.15, text="km/h  ·  ESTIMATE", fill=pal["text_secondary"],
                            font=("Segoe UI Semibold", 9))
 
     def refresh_tuning_dashboard(*_):
@@ -3934,13 +4480,6 @@ def run_gui():
         update_rank()
         refresh_dirty_indicator()
         status(tr("st_start"))
-
-    def toggle_theme():
-        appearance["mode"] = "day" if appearance["mode"] == "night" else "night"
-        save_appearance()
-        build()
-        scan(keep=True)
-        refresh_mods()
 
     # ---------------------------------------------------------- save tab logic
     def add_money(a):
@@ -4609,15 +5148,32 @@ def _cli(argv):
         print(SaveFile(a.file).read())
 
 
+def run_web_ui():
+    """Launch the offline WebView2 UI while keeping the existing Tk GUI available."""
+    import webview
+    from ets2_web_bridge import EditorBridge
+
+    base = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+    index = base / "ui" / "index.html"
+    if not index.is_file():
+        raise FileNotFoundError("The bundled UI files are missing: " + str(index))
+    bridge = EditorBridge(sys.modules[__name__])
+    window = webview.create_window(
+        APP, url=index.as_uri(), js_api=bridge, width=1440, height=900,
+        min_size=(1100, 700), background_color="#080f18", text_select=True)
+    bridge.attach_window(window)
+    webview.start(gui="edgechromium", debug=False)
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "--cli":
         _cli(sys.argv[2:])
-    else:
+    elif len(sys.argv) > 1 and sys.argv[1] == "--classic":
         log_path = configure_error_logging()
         try:
             run_gui()
         except Exception as exc:
-            logging.exception("Application startup failed")
+            logging.exception("Classic application startup failed")
             try:
                 import tkinter.messagebox
                 tkinter.messagebox.showerror(APP,
@@ -4625,3 +5181,26 @@ if __name__ == "__main__":
             except Exception:
                 print("The application could not start: %s\nLog file: %s" % (exc, log_path),
                       file=sys.stderr)
+    else:
+        log_path = configure_error_logging()
+        try:
+            run_web_ui()
+        except Exception as exc:
+            logging.exception("WebView2 UI could not start; falling back to classic Tk UI")
+            try:
+                import tkinter.messagebox
+                tkinter.messagebox.showwarning(APP,
+                    "WebView2 interface could not start; opening the classic interface instead.\n\n"
+                    "If the modern interface is needed, install Microsoft Edge WebView2 Runtime.\n\n"
+                    "Details: %s\nLog file: %s" % (exc, log_path))
+                run_gui()
+            except Exception as fallback_exc:
+                logging.exception("Classic fallback could not start")
+                try:
+                    import tkinter.messagebox
+                    tkinter.messagebox.showerror(APP,
+                        "The application could not start:\n%s\n\nLog file:\n%s" %
+                        (fallback_exc, log_path))
+                except Exception:
+                    print("The application could not start: %s\nLog file: %s" %
+                          (fallback_exc, log_path), file=sys.stderr)

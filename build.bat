@@ -7,7 +7,7 @@ py -3.12 -m pip install -r requirements.txt
 if errorlevel 1 goto :fail
 py -3.12 -m unittest discover -s tests -v
 if errorlevel 1 goto :fail
-py -3.12 -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
+py -3.12 -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --collect-all webview --hidden-import webview.platforms.edgechromium --hidden-import clr --add-data "ui;ui" --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
 if errorlevel 1 goto :fail
 
 echo.
