@@ -22,12 +22,14 @@ jobs:
         run: |
           $required = @(
             "ets2_save_editor.py",
+            "ets2_web_bridge.py",
             "app.ico",
             "version_info.txt",
             "installer.iss",
             "ui/index.html",
             "ui/app.js",
             "ui/app.css",
+            "tests",
             "tuning_templates/def/vehicle/truck/mercedes.actros2014/engine",
             "tuning_templates/def/vehicle/truck/volvo.fh_2024/engine",
             "tuning_templates/def/vehicle/truck/scania.s_2024e/engine"
@@ -48,6 +50,7 @@ jobs:
           $analysis = Get-Content "build/ETS2SaveEditor/Analysis-00.toc" -Raw
           if (-not $analysis.Contains("Crypto.Cipher.AES")) { throw "PyInstaller analysis does not contain Crypto.Cipher.AES." }
           if (-not $analysis.Contains("webview.platforms.edgechromium")) { throw "PyInstaller analysis does not contain the WebView2 backend." }
+          if (-not $analysis.Contains("ets2_web_bridge")) { throw "PyInstaller analysis does not contain the Python bridge." }
           if (-not $analysis.Contains("index.html") -or -not $analysis.Contains("app.js") -or -not $analysis.Contains("app.css")) { throw "PyInstaller analysis does not contain all UI files." }
           if (-not $analysis.Contains("tuning_templates")) { throw "PyInstaller analysis does not contain the tuning templates." }
           if (-not (Test-Path "dist/ETS2SaveEditor.exe")) { throw "Standalone executable was not created." }
