@@ -10,6 +10,8 @@ import math
 import os
 import re
 import time
+import webbrowser
+from urllib.parse import quote_plus
 from pathlib import Path
 
 
@@ -201,6 +203,14 @@ class EditorBridge:
         self.save_slot = saves[index][0]
         return self.state()
 
+    def search_truck_images(self, model):
+        """Open a Google Images search in the user's default browser."""
+        model = self._text(model, "truck model", 160)
+        query = quote_plus(model + " ETS2 truck")
+        opened = webbrowser.open("https://www.google.com/search?tbm=isch&q=" + query, new=2)
+        if not opened:
+            raise RuntimeError("Could not open the default browser")
+        return {"opened": True}
     def set_language(self, index):
         if isinstance(index, bool) or index not in (0, 1):
             raise ValueError("Invalid language")
@@ -381,6 +391,8 @@ class EditorBridge:
     def save_game_settings(self, values):
         if not isinstance(values, dict) or set(values) - set(self.core.CONFIG_KEYS):
             raise ValueError("Unsupported game settings")
+        if self.core.game_running():
+            raise ValueError("Close ETS2 before changing game settings")
         clean = {}
         for key, value in values.items():
             if not isinstance(value, str) or value not in ("0", "1", "2"):
@@ -390,6 +402,17 @@ class EditorBridge:
             clean[self.core.CONFIG_KEYS[key]] = value
         self.core.write_config(self._game(), clean)
         return self.state()
+
+    def enable_text_save_mode(self):
+        """Ask ETS2 to write future saves as text; never rewrite the selected save here."""
+        self._save()  # Require an explicitly selected save and revalidate its location.
+        if self.core.game_running():
+            raise ValueError("Close ETS2 before changing save mode")
+        game = self._game()
+        config = self.core.read_config(game)
+        if config.get(self.core.CONFIG_KEYS["savefmt"]) != "2":
+            self.core.write_config(game, {self.core.CONFIG_KEYS["savefmt"]: "2"})
+        return {"state": self.state(), "enabled": True}
 
     def log_tail(self):
         path = self.core.game_log_path(self._game())
@@ -514,4 +537,6 @@ class EditorBridge:
         return self.core.recommend_engine_for_targets(
             positive("speed", 20, 1000), positive("accel", 1, 1000),
             positive("mass", 1000, 200000), positive("rpm", 500, 10000))
+
+
 

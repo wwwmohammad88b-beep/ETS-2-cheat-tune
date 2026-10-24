@@ -26,6 +26,12 @@ class BridgeTests(unittest.TestCase):
         self.addCleanup(self.finder.stop)
         self.bridge = EditorBridge(core)
 
+    def test_search_truck_images_opens_encoded_google_images_query(self):
+        with mock.patch("ets2_web_bridge.webbrowser.open", return_value=True) as opened:
+            result = self.bridge.search_truck_images("Volvo FH 2024")
+        self.assertTrue(result["opened"])
+        self.assertIn("google.com/search?tbm=isch&q=", opened.call_args.args[0])
+        self.assertIn("Volvo+FH+2024+ETS2+truck", opened.call_args.args[0])
     def test_native_window_is_not_exposed_as_public_js_api_attribute(self):
         native_window = object()
         self.bridge.attach_window(native_window)
@@ -42,6 +48,27 @@ class BridgeTests(unittest.TestCase):
             with self.subTest(value=value), self.assertRaises(ValueError):
                 self.bridge.set_language(value)
         self.assertEqual(self.bridge.set_language(1)["language"], 1)
+
+    def test_enable_text_save_mode_changes_game_setting_only_for_future_saves(self):
+        self.bridge._save = mock.Mock()
+        self.bridge._game = mock.Mock(return_value=self.game)
+        self.bridge.state = mock.Mock(return_value={"summary": None})
+        with mock.patch.object(core, "game_running", return_value=False), \
+             mock.patch.object(core, "read_config", return_value={"g_save_format": "0"}), \
+             mock.patch.object(core, "write_config") as write_config:
+            result = self.bridge.enable_text_save_mode()
+        self.bridge._save.assert_called_once_with()
+        write_config.assert_called_once_with(self.game, {"g_save_format": "2"})
+        self.assertTrue(result["enabled"])
+        self.assertEqual(result["state"], {"summary": None})
+
+    def test_enable_text_save_mode_refuses_while_game_is_running(self):
+        self.bridge._save = mock.Mock()
+        with mock.patch.object(core, "game_running", return_value=True), \
+             mock.patch.object(core, "write_config") as write_config:
+            with self.assertRaisesRegex(ValueError, "Close ETS2"):
+                self.bridge.enable_text_save_mode()
+        write_config.assert_not_called()
 
     def test_profile_must_resolve_beneath_selected_game_root(self):
         self.bridge.profile_path = self.outside
@@ -76,6 +103,20 @@ class WebAssetsTests(unittest.TestCase):
         self.assertNotRegex(html, r"(?:src|href)=['\"]https?://")
         self.assertNotIn("https://", html)
 
+    def test_dashboard_art_is_local_and_gauges_use_aligned_center_pivot(self):
+        import xml.etree.ElementTree as ET
+
+        asset = ROOT / "ui" / "assets" / "hero-road-truck.svg"
+        self.assertTrue(asset.is_file())
+        ET.parse(asset)
+        js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
+        css = (ROOT / "ui" / "app.css").read_text(encoding="utf-8")
+        self.assertIn('viewBox","0 0 240 185', js)
+        self.assertIn('rotate(180 120 124)', js)
+        self.assertIn('180+180*p', js)
+        self.assertIn('font-size:18px', css)
+        self.assertNotIn('transform-origin:120px 113px', css)
+        self.assertIn('function truckGraphic(label)', js)
     def test_frontend_uses_existing_translation_keys_and_no_dynamic_html(self):
         js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
         self.assertNotRegex(js, r"\.innerHTML\b|\beval\s*\(|\bfetch\s*\(|XMLHttpRequest")
@@ -89,4 +130,6 @@ class WebAssetsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
 

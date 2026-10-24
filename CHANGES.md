@@ -6,6 +6,9 @@
 - Added live theme previews, custom accent, day/night switching, and persistence through the existing editor settings folder.
 
 ## Pages and bridge
+- Refined the speed/RPM dials: reduced oversized readouts, aligned needle pivot with the arc, and corrected the needle sweep to stay inside the gauge.
+- Added local illustrated truck cards in Garage and an original road-truck illustration in the Dashboard hero; added an explicit Google Images search button per owned truck. Online results open in the external browser and are not fetched into the app.
+- Fixed the WebView2 startup hang seen in the user log by keeping the native window in a private bridge attribute so pywebview does not introspect WinForms accessibility objects.
 - Added Dashboard, Tuning, Save Profiles, Garage, Game Settings, Mod Manager, Extras and Appearance pages.
 - Connected UI actions to a narrow ets2_web_bridge.py API; the JavaScript side does not receive generic filesystem or process access.
 - Garage and Dashboard display data from the existing fleet/save extractors; unavailable values remain unavailable. The tuning gauges report calculations from user-entered targets, not live game telemetry.
@@ -21,11 +24,11 @@
 - Rolling backup policy, save mutation logic and automatic backup before writes were not changed.
 
 ## Test results
-- node --check ui/app.js: passed.
-- python -m py_compile ets2_save_editor.py ets2_web_bridge.py tests\test_web_ui.py: passed.
-- python -m unittest discover -s tests -v: 56 passed; no failures.
-- Existing GUI tests emitted one Tk teardown diagnostic but completed with exit code 0.
-- The web UI was not executed in pywebview. The Windows EXE/installer and GitHub Actions build were not run in this environment. Edge headless screenshot capture crashed (-1073741819), so no screenshot is claimed.
+- node --check ui/app.js: passed after the gauge, garage and dashboard changes.
+- python -m py_compile ets2_web_bridge.py tests\test_web_ui.py: passed.
+- python -m unittest discover -s tests -p test_web_ui.py -v: 10 passed, including the private-window recursion regression, Google Images URL and SVG/gauge checks.
+- A full unittest run was attempted, but this restricted execution environment returned errors while tests accessed or cleaned its isolated temporary directories; the full suite is not claimed as passing in this run.
+- The WebView2 window was not executed here. The Windows EXE/installer and GitHub Actions build were not run in this environment.
 
 ## Remaining verification
 - Run GitHub Actions or a Windows build machine with PyInstaller and Inno Setup.

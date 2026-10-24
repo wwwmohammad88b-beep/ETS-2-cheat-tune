@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 380" role="img" aria-labelledby="title desc">
+  <title id="title">Truck cruising a mountain road at dusk</title>
+  <desc id="desc">Original illustrated Euro-style truck on a curving road beneath a blue night sky.</desc>
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#12314a"/><stop offset="1" stop-color="#07111b"/></linearGradient>
+    <linearGradient id="road" x2="0" y2="1"><stop stop-color="#263b4a"/><stop offset="1" stop-color="#101820"/></linearGradient>
+    <linearGradient id="cab" x2="1" y2="1"><stop stop-color="#74e1ff"/><stop offset=".55" stop-color="#159ac6"/><stop offset="1" stop-color="#08769b"/></linearGradient>
+    <linearGradient id="trailer" x2="0" y2="1"><stop stop-color="#d7e9f1"/><stop offset="1" stop-color="#718b9b"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#39c9ff" stop-opacity=".34"/><stop offset="1" stop-color="#39c9ff" stop-opacity="0"/></radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="18"/></filter>
+  </defs>
+  <rect width="1440" height="380" fill="url(#sky)"/>
+  <ellipse cx="1110" cy="115" rx="340" ry="180" fill="url(#glow)"/>
+  <circle cx="1250" cy="64" r="29" fill="#d9f7ff" opacity=".82"/>
+  <circle cx="1250" cy="64" r="48" fill="#54cfff" opacity=".18" filter="url(#soft)"/>
+  <path d="M0 205 145 133l84 47 155-96 110 90 115-53 135 87 128-93 143 85 114-74 127 88 113-60 111 63v115H0Z" fill="#183043"/>
+  <path d="M0 245 172 188l125 60 169-92 124 93 131-55 169 66 144-73 146 68 154-59 106 59v125H0Z" fill="#102332"/>
+  <path d="M0 286c203-42 357-46 520-17 183 33 295 18 450-9 163-29 294-14 470 18v102H0Z" fill="#0b1822"/>
+  <path d="M430 380c105-78 203-97 330-103 157-8 243 21 366 103Z" fill="url(#road)"/>
+  <path d="M601 380c65-53 119-73 202-85 86-12 147-3 214 20" fill="none" stroke="#7bdcf5" stroke-opacity=".34" stroke-width="4"/>
+  <path d="M753 380c31-45 63-68 104-86" fill="none" stroke="#f3cb70" stroke-opacity=".9" stroke-width="5" stroke-dasharray="18 19"/>
+  <g opacity=".62" fill="#15394b">
+    <path d="m90 249 31-88 31 88h-18l18 33h-62l18-33Z"/><path d="m203 252 26-73 27 73h-15l15 28h-53l15-28Z"/>
+    <path d="m1325 247 31-91 32 91h-18l18 35h-64l18-35Z"/><path d="m1215 247 25-70 26 70h-15l15 29h-51l15-29Z"/>
+  </g>
+  <g transform="translate(790 111)">
+    <ellipse cx="225" cy="180" rx="270" ry="20" fill="#02070c" opacity=".65"/>
+    <rect x="5" y="25" width="270" height="113" rx="7" fill="url(#trailer)" stroke="#d8f4ff" stroke-opacity=".52" stroke-width="2"/>
+    <path d="M23 46h226M23 58h226" stroke="#fff" stroke-opacity=".22" stroke-width="2"/>
+    <path d="M29 119h222" stroke="#159ac6" stroke-opacity=".75" stroke-width="4"/>
+    <rect x="273" y="95" width="16" height="43" rx="3" fill="#304757"/>
+    <path d="M286 65h45l48 47v27h-91Z" fill="url(#cab)" stroke="#a9f0ff" stroke-opacity=".72" stroke-width="2"/>
+    <path d="M298 73h29l34 34h-63Z" fill="#102b3b" stroke="#9cecff" stroke-opacity=".65" stroke-width="2"/>
+    <path d="M342 112h29v17h-29Z" fill="#a9f0ff" opacity=".8"/>
+    <path d="M303 117v21M319 117v21" stroke="#d8f8ff" stroke-opacity=".58" stroke-width="2"/>
+    <rect x="377" y="122" width="12" height="9" rx="3" fill="#ffe9ad"/>
+    <rect x="6" y="135" width="382" height="7" rx="3" fill="#08121a"/>
+    <g fill="#08121a" stroke="#6f91a4" stroke-width="3"><circle cx="63" cy="145" r="23"/><circle cx="224" cy="145" r="23"/><circle cx="337" cy="145" r="23"/></g>
+    <g fill="#80a9bc"><circle cx="63" cy="145" r="9"/><circle cx="224" cy="145" r="9"/><circle cx="337" cy="145" r="9"/></g>
+    <path d="M31 165h340" stroke="#21c8f3" stroke-opacity=".55" stroke-width="3"/>
+  </g>
+</svg>
