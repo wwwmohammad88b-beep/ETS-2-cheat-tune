@@ -17,13 +17,27 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-      - name: Verify crypto runtime and tuning templates
+      - name: Verify source files
         shell: pwsh
         run: |
-          python -c "from Crypto.Cipher import AES; print('PyCryptodome AES import OK')"
-          if (-not (Test-Path "tuning_templates/def/vehicle/truck/mercedes.actros2014/engine")) { throw "Mercedes engine templates are missing." }
-          if (-not (Test-Path "tuning_templates/def/vehicle/truck/volvo.fh_2024/engine")) { throw "Volvo engine templates are missing." }
-          if (-not (Test-Path "tuning_templates/def/vehicle/truck/scania.s_2024e/engine")) { throw "Scania engine templates are missing." }
+          $required = @(
+            "ets2_save_editor.py",
+            "app.ico",
+            "version_info.txt",
+            "installer.iss",
+            "ui/index.html",
+            "ui/app.js",
+            "ui/app.css",
+            "tuning_templates/def/vehicle/truck/mercedes.actros2014/engine",
+            "tuning_templates/def/vehicle/truck/volvo.fh_2024/engine",
+            "tuning_templates/def/vehicle/truck/scania.s_2024e/engine"
+          )
+          foreach ($path in $required) {
+            if (-not (Test-Path $path)) { throw "Required project file or folder is missing: $path" }
+          }
+      - name: Verify crypto runtime
+        shell: pwsh
+        run: python -c "from Crypto.Cipher import AES; print('PyCryptodome AES import OK')"
       - name: Run regression tests
         run: python -m unittest discover -s tests -v
       - name: Build standalone executable
@@ -34,7 +48,7 @@ jobs:
           $analysis = Get-Content "build/ETS2SaveEditor/Analysis-00.toc" -Raw
           if (-not $analysis.Contains("Crypto.Cipher.AES")) { throw "PyInstaller analysis does not contain Crypto.Cipher.AES." }
           if (-not $analysis.Contains("webview.platforms.edgechromium")) { throw "PyInstaller analysis does not contain the WebView2 backend." }
-          if ($analysis -notmatch "ui[\\/]index\.html" -or $analysis -notmatch "ui[\\/]app\.js") { throw "PyInstaller analysis does not contain the complete UI." }
+          if (-not $analysis.Contains("index.html") -or -not $analysis.Contains("app.js") -or -not $analysis.Contains("app.css")) { throw "PyInstaller analysis does not contain all UI files." }
           if (-not $analysis.Contains("tuning_templates")) { throw "PyInstaller analysis does not contain the tuning templates." }
           if (-not (Test-Path "dist/ETS2SaveEditor.exe")) { throw "Standalone executable was not created." }
       - name: Install Inno Setup
