@@ -21,7 +21,9 @@ class EditorBridge:
         self.profile_path = None
         self.profile_label = None
         self.save_slot = None
-        self.window = None
+        # Keep the native window private; pywebview introspects public js_api attributes,
+        # and traversing Window.native recurses through WinForms accessibility objects.
+        self._window = None
         self.language = 0
 
     @staticmethod
@@ -31,7 +33,7 @@ class EditorBridge:
         return value
 
     def attach_window(self, window):
-        self.window = window
+        self._window = window
 
     def _game(self):
         if not 0 <= self.game_index < len(self.games):
@@ -169,10 +171,10 @@ class EditorBridge:
         return self.state()
 
     def choose_game_folder(self):
-        if self.window is None:
+        if self._window is None:
             raise RuntimeError("Native folder picker is unavailable")
         import webview
-        selected = self.window.create_file_dialog(webview.FOLDER_DIALOG)
+        selected = self._window.create_file_dialog(webview.FOLDER_DIALOG)
         if not selected:
             return self.state()
         candidate = Path(selected[0]).resolve()
@@ -348,10 +350,10 @@ class EditorBridge:
         return self.state()
 
     def add_mod(self):
-        if self.window is None:
+        if self._window is None:
             raise RuntimeError("Native file picker is unavailable")
         import webview
-        selected = self.window.create_file_dialog(webview.OPEN_DIALOG, allow_multiple=False,
+        selected = self._window.create_file_dialog(webview.OPEN_DIALOG, allow_multiple=False,
                     file_types=("ETS2 mod archives (*.scs;*.zip)", "*.scs;*.zip"))
         if not selected:
             return self.state()
@@ -512,3 +514,4 @@ class EditorBridge:
         return self.core.recommend_engine_for_targets(
             positive("speed", 20, 1000), positive("accel", 1, 1000),
             positive("mass", 1000, 200000), positive("rpm", 500, 10000))
+

@@ -26,6 +26,12 @@ class BridgeTests(unittest.TestCase):
         self.addCleanup(self.finder.stop)
         self.bridge = EditorBridge(core)
 
+    def test_native_window_is_not_exposed_as_public_js_api_attribute(self):
+        native_window = object()
+        self.bridge.attach_window(native_window)
+        self.assertIs(self.bridge._window, native_window)
+        self.assertFalse(hasattr(self.bridge, "window"))
+
     def test_bridge_rejects_invalid_and_boolean_indexes(self):
         for value in (True, False, -1, 1, "0", None):
             with self.subTest(value=value), self.assertRaises(ValueError):
@@ -83,3 +89,4 @@ class WebAssetsTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
