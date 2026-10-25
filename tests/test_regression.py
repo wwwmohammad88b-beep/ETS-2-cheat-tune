@@ -292,7 +292,7 @@ class ExistingCoreRegressionTests(unittest.TestCase):
             self.assertEqual(game_save.read_bytes(), original)
             self.assertEqual(list(game_save.parent.glob("*.tmp")), [])
 
-    def test_edit_save_refuses_untested_binary_or_encrypted_formats(self):
+    def test_edit_save_refuses_untested_binary_format(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as temp:
             path = Path(temp) / "game.sii"
             original = (ROOT / "sample.sii").read_bytes()
@@ -361,7 +361,7 @@ class ExistingCoreRegressionTests(unittest.TestCase):
                     return {}
 
             with patch.object(app, "SaveFile", return_value=UnsupportedSave()):
-                with self.assertRaisesRegex(app.SiiError, "plain-text"):
+                with self.assertRaisesRegex(app.SiiError, "SiiN text"):
                     app.restore_save_backup(current, backup)
             self.assertEqual(current.read_bytes(), original)
 
@@ -371,10 +371,33 @@ class ExistingCoreRegressionTests(unittest.TestCase):
         with self.assertRaisesRegex(app.SiiError, "incomplete block"):
             app.TextSave(b'SiiNunit\n{\nbank : bank.data {\n money_account: 1\n}\n').verify()
 
-    def test_only_plain_unencrypted_saves_are_writable(self):
+    def test_sii_text_payload_is_writable_in_plain_and_scsc_containers(self):
         self.assertTrue(app.save_writes_supported("text", False))
-        self.assertFalse(app.save_writes_supported("text", True))
+        self.assertTrue(app.save_writes_supported("text", True))
         self.assertFalse(app.save_writes_supported("binary", False))
+
+    def test_editing_scsc_wrapped_text_payload_backs_up_and_writes_verified_text(self):
+        with tempfile.TemporaryDirectory(dir=ROOT) as temp:
+            root = Path(temp)
+            game_save = root / "profiles" / "profile-a" / "save" / "1" / "game.sii"
+            game_save.parent.mkdir(parents=True)
+            original_text = (ROOT / "sample.sii").read_bytes()
+            encrypted_original = b"ScsC synthetic encrypted wrapper for text payload"
+            game_save.write_bytes(encrypted_original)
+
+            def decode_synthetic_container(raw):
+                if raw.startswith(b"ScsC"):
+                    return original_text, True
+                return raw, False
+
+            with patch.object(app, "decode_container", side_effect=decode_synthetic_container), \
+                 patch.object(app, "backup_root", return_value=root / "backups"):
+                backup = app.edit_save(game_save, {"money": 7654321})
+                parsed = app.SaveFile(game_save)
+            self.assertEqual(backup.read_bytes(), encrypted_original)
+            self.assertTrue(game_save.read_bytes().startswith(b"SiiN"))
+            self.assertFalse(parsed.was_encrypted)
+            self.assertEqual(parsed.read()["money"], 7654321)
 
     def test_repair_and_refuel_verification_requires_recognized_fields(self):
         with self.assertRaises(app.SiiError):

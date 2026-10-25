@@ -60,7 +60,38 @@ class BridgeTests(unittest.TestCase):
         self.bridge._save.assert_called_once_with()
         write_config.assert_called_once_with(self.game, {"g_save_format": "2"})
         self.assertTrue(result["enabled"])
-        self.assertEqual(result["state"], {"summary": None})
+        self.assertIsNone(result["state"]["summary"])
+        self.assertEqual(result["state"]["operation_history"][0]["operation"], "game config")
+
+    def test_state_enables_editable_text_saves_by_default_with_config_backup(self):
+        with mock.patch.object(core, "read_config", side_effect=[
+                {"g_save_format": "0"}, {"g_save_format": "2"}]) as read_config, \
+             mock.patch.object(core, "write_config") as write_config, \
+             mock.patch.object(core, "game_running", return_value=False):
+            result = self.bridge.state()
+        write_config.assert_called_once_with(
+            self.game, {"g_save_format": core.DEFAULT_SAVE_FORMAT})
+        self.assertEqual(read_config.call_count, 2)
+        self.assertEqual(result["config"]["g_save_format"], "2")
+
+    def test_cheat_profile_settings_write_only_to_selected_profile_config(self):
+        profile = self.game / "profiles" / "profile-a"
+        profile.mkdir(parents=True)
+        self.bridge.profile_path = profile.resolve()
+        self.bridge.profile_label = "Profile A"
+        self.bridge._profile = mock.Mock(return_value=("Profile A", profile.resolve()))
+        self.bridge.state = mock.Mock(return_value={"operation_history": []})
+        self.bridge._record_cheat = mock.Mock()
+        self.bridge.cheat_history = mock.Mock(return_value=[])
+        with mock.patch.object(core, "read_config", side_effect=[
+                {"g_fatigue": "1", "g_police": "1"},
+                {"g_fatigue": "1", "g_police": "1"}]) as read_config, \
+             mock.patch.object(core, "write_config") as write_config, \
+             mock.patch.object(core, "game_running", return_value=False):
+            self.bridge.save_game_settings({"fatigue": "0", "police": "0"})
+        write_config.assert_called_once_with(profile.resolve(), {
+            "g_fatigue": "0", "g_police": "0"})
+        self.assertEqual(read_config.call_count, 2)
 
     def test_enable_text_save_mode_refuses_while_game_is_running(self):
         self.bridge._save = mock.Mock()
@@ -69,6 +100,86 @@ class BridgeTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "Close ETS2"):
                 self.bridge.enable_text_save_mode()
         write_config.assert_not_called()
+
+    def _select_sample_save(self):
+        profile = self.game / "profiles" / "profile-a"
+        save = profile / "save" / "1" / "game.sii"
+        save.parent.mkdir(parents=True, exist_ok=True)
+        save.write_bytes((ROOT / "sample.sii").read_bytes())
+        self.bridge.profile_label = "Profile A"
+        self.bridge.profile_path = profile.resolve()
+        self.bridge.save_slot = "1"
+        return save
+
+    def test_runtime_status_reports_detected_version_and_process_state(self):
+        with mock.patch.object(core, "detect_game_version", return_value="1.60.1.7s"), \
+             mock.patch.object(core, "game_running", return_value=True):
+            result = self.bridge.state()
+        self.assertEqual(result["game_version"], "1.60.1.7s")
+        self.assertTrue(result["game_running"])
+
+    def test_cheat_preview_validates_and_does_not_write(self):
+        save = self._select_sample_save()
+        with mock.patch.object(self.bridge, "_save", return_value=save):
+            result = self.bridge.cheat_preview({"category": "money", "operation": "add", "amount": 500})
+            self.assertEqual(result["before"], {"money": 12345})
+            self.assertEqual(result["after"], {"money": 12845})
+            self.assertTrue(result["writable"])
+            with self.assertRaisesRegex(ValueError, "between 0"):
+                self.bridge.cheat_preview({"category": "money", "operation": "set", "amount": -1})
+        self.assertEqual(save.read_bytes(), (ROOT / "sample.sii").read_bytes())
+
+    def test_cheat_apply_requires_confirmation_and_records_verified_edit(self):
+        save = self._select_sample_save()
+        with mock.patch.object(self.bridge, "_save", return_value=save), \
+             mock.patch.object(core, "backup_root", return_value=self.root / "backups"), \
+             mock.patch.object(core, "game_running", return_value=False):
+            with self.assertRaisesRegex(ValueError, "Confirm"):
+                self.bridge.cheat_apply({"category": "money", "operation": "set", "amount": 25000})
+            result = self.bridge.cheat_apply({"category": "money", "operation": "set",
+                                              "amount": 25000, "confirmed": True})
+        self.assertEqual(core.SaveFile(save).read()["money"], 25000)
+        self.assertTrue(Path(result["backup"]).is_file())
+        self.assertTrue(result["history_saved"])
+        self.assertEqual(result["operation_history"][0]["result"], "success")
+
+    def test_cheat_runtime_or_unknown_categories_cannot_write(self):
+        save = self._select_sample_save()
+        with mock.patch.object(self.bridge, "_save", return_value=save), \
+             mock.patch.object(core, "game_running", return_value=False), \
+             mock.patch.object(self.bridge, "_save_edits") as write:
+            with self.assertRaisesRegex(ValueError, "Unsupported Cheat Center category"):
+                self.bridge.cheat_preview({"category": "unlimited_fuel"})
+            with self.assertRaisesRegex(ValueError, "Unsupported Cheat Center category"):
+                self.bridge.cheat_apply({"category": "unlimited_fuel", "confirmed": True})
+        write.assert_not_called()
+
+    def test_cheat_apply_refuses_binary_payload_at_bridge_boundary(self):
+        save = self._select_sample_save()
+
+        class BinarySave:
+            kind = "binary"
+            was_encrypted = False
+            def verify(self): pass
+            def read(self): return {"money": 12345, "xp": 100}
+
+        with mock.patch.object(self.bridge, "_save", return_value=save), \
+             mock.patch.object(core, "SaveFile", return_value=BinarySave()), \
+             mock.patch.object(core, "game_running", return_value=False), \
+             mock.patch.object(self.bridge, "_save_edits") as write:
+            with self.assertRaisesRegex(ValueError, "unsupported for writing"):
+                self.bridge.cheat_apply({"category": "money", "operation": "set",
+                                          "amount": 20000, "confirmed": True})
+        write.assert_not_called()
+
+    def test_skill_cheat_rejects_out_of_range_values(self):
+        save = self._select_sample_save()
+        with mock.patch.object(self.bridge, "_save", return_value=save):
+            with self.assertRaisesRegex(ValueError, "between 0 and 6"):
+                self.bridge.cheat_preview({"category": "skills", "values": {"long_dist": 7}})
+            result = self.bridge.cheat_preview({"category": "skills", "values": {"long_dist": 6}})
+        self.assertEqual(result["before"], {"long_dist": 1})
+        self.assertEqual(result["after"], {"long_dist": 6})
 
     def test_profile_must_resolve_beneath_selected_game_root(self):
         self.bridge.profile_path = self.outside
@@ -117,6 +228,32 @@ class WebAssetsTests(unittest.TestCase):
         self.assertIn('font-size:18px', css)
         self.assertNotIn('transform-origin:120px 113px', css)
         self.assertIn('function truckGraphic(label)', js)
+    def test_editable_text_save_is_the_default_when_config_has_no_value(self):
+        js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
+        source = (ROOT / "ets2_save_editor.py").read_text(encoding="utf-8")
+        self.assertEqual(core.DEFAULT_SAVE_FORMAT, "2")
+        self.assertIn('c.g_save_format||"2"', js)
+        self.assertIn('c.get("g_save_format", DEFAULT_SAVE_FORMAT) == "2"', source)
+
+    def test_guide_page_is_last_and_localized(self):
+        js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
+        nav = re.search(r"const nav=\[(.*?)\];", js).group(1)
+        self.assertTrue(nav.rstrip().endswith('["guide","cheat_guide_title","ⓘ"]'))
+        self.assertIn('guide:guide', js)
+        for key in ("cheat_guide_title", "guide_first_steps_body", "guide_binary_limit_body",
+                    "guide_cheats_body", "guide_backups_body", "guide_mods_body"):
+            self.assertIn(key, core.T)
+
+    def test_cheat_center_is_registered_and_localized(self):
+        js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
+        self.assertIn('["cheats","web_cheat_center"', js)
+        self.assertIn('cheats:cheatCenter', js)
+        self.assertIn("web_cheat_center", core.T)
+        self.assertIn("cheat_unsupported_runtime", core.T)
+        self.assertIn("cheat_history", core.T)
+        used = set(re.findall(r'tr\("([^"]+)"', js))
+        self.assertEqual(sorted(used - set(core.T)), [])
+
     def test_frontend_uses_existing_translation_keys_and_no_dynamic_html(self):
         js = (ROOT / "ui" / "app.js").read_text(encoding="utf-8")
         self.assertNotRegex(js, r"\.innerHTML\b|\beval\s*\(|\bfetch\s*\(|XMLHttpRequest")

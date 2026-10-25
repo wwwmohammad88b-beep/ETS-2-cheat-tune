@@ -576,8 +576,12 @@ def ui_palette(appearance):
 
 
 def save_writes_supported(kind, encrypted):
-    """Only plain-text saves have end-to-end write validation in this build."""
-    return kind == "text" and not encrypted
+    """SiiN text payloads are writable, including when wrapped in ScsC encryption.
+
+    Writes are emitted as validated plain SiiN text. BSII remains read-only because
+    its modified binary serialization has not been validated end to end.
+    """
+    return kind == "text"
 
 
 # --------------------------------------------------------------------------
@@ -1568,7 +1572,7 @@ def restore_save_backup(game_sii, backup_file):
         source = SaveFile(staged)
         if (not save_writes_supported(source.kind, source.was_encrypted) or
                 not save_writes_supported(current.kind, current.was_encrypted)):
-            raise SiiError("safe restore is currently enabled only for plain-text, unencrypted saves")
+            raise SiiError("safe restore is currently enabled only for SiiN text payloads")
         source.verify()
         expected = source.read()
         current_fingerprint = save_fingerprint(game_sii)
@@ -1705,7 +1709,7 @@ def edit_save(game_sii, vals, unlock_cities=False, extras=(), vehicle_ids=None):
     original_fingerprint = save_fingerprint(game_sii)
     sf = SaveFile(game_sii)
     if not save_writes_supported(sf.kind, sf.was_encrypted):
-        raise SiiError("safe writes are currently enabled only for plain-text SiiNunit saves; binary or encrypted saves are read-only")
+        raise SiiError("safe writes are currently enabled only for SiiN text payloads; BSII binary saves are read-only")
     if vehicle_ids is not None and not vehicle_ids:
         raise SiiError("no owned vehicles were selected")
     sf.apply(vals, unlock_cities, extras, vehicle_ids)
@@ -2160,7 +2164,10 @@ def validate_mod(path, base, game_version="", other_files=None):
 # --------------------------------------------------------------------------
 # config.cfg
 # --------------------------------------------------------------------------
-CONFIG_KEYS = {"developer": "g_developer", "console": "g_console", "savefmt": "g_save_format"}
+CONFIG_KEYS = {"developer": "g_developer", "console": "g_console", "savefmt": "g_save_format",
+               "fatigue": "g_fatigue", "police": "g_police",
+               "fuel_simulation": "g_fuel_simulation", "speed_limiter": "g_use_speed_limiter"}
+DEFAULT_SAVE_FORMAT = "2"  # Prefer editable SiiN text for saves created from now on.
 
 
 def read_config(base):
@@ -2713,6 +2720,104 @@ T.update({
     "web_on": ("On", "روشن"),
     "web_binary_save": ("Binary save", "سیو باینری"),
     "web_text_save": ("Text save", "سیو متنی"),
+    "web_cheat_center": ("Cheat Center", "مرکز چیت"),
+    "cheat_subtitle": ("Save-backed tools and honest runtime compatibility status.", "ابزارهای مبتنی بر سیو و وضعیت واقعی سازگاری زمان اجرا."),
+    "cheat_selected_save": ("Selected profile and save", "پروفایل و سیو انتخاب‌شده"),
+    "cheat_search": ("Search features", "جست‌وجوی قابلیت‌ها"),
+    "cheat_filter": ("Category", "دسته‌بندی"),
+    "cheat_all": ("All categories", "همهٔ دسته‌ها"),
+    "cheat_cat_economy": ("Money & economy", "پول و اقتصاد"),
+    "cheat_cat_driver": ("XP & skills", "تجربه و مهارت‌ها"),
+    "cheat_cat_fleet": ("Truck & trailer", "کامیون و تریلر"),
+    "cheat_cat_runtime": ("Console & runtime", "کنسول و زمان اجرا"),
+    "cheat_operation": ("Operation", "عملیات"),
+    "cheat_set": ("Set value", "تنظیم مقدار"),
+    "cheat_add": ("Add / subtract", "افزایش / کاهش"),
+    "cheat_multiply": ("Multiply", "ضرب در ضریب"),
+    "cheat_high_balance": ("Set maximum supported balance", "تنظیم بیشترین موجودی پشتیبانی‌شده"),
+    "cheat_amount": ("Amount / multiplier", "مقدار / ضریب"),
+    "cheat_economy_note": ("Values are read from the selected save. Maximum balance is a large fixed value, not unlimited money.", "مقادیر از سیو انتخاب‌شده خوانده می‌شوند. بیشترین موجودی یک عدد ثابت بزرگ است، نه پول نامحدود."),
+    "cheat_preview": ("Preview", "پیش‌نمایش"),
+    "cheat_dry_run": ("Dry run · nothing written yet", "اجرای آزمایشی · هنوز چیزی نوشته نشده"),
+    "cheat_before": ("Before", "قبل"),
+    "cheat_after": ("After", "بعد"),
+    "cheat_apply": ("Confirm and apply", "تأیید و اعمال"),
+    "cheat_confirm_apply": ("Apply these exact changes to the selected save? ETS2 must be closed. The existing rolling backup runs first.", "همین تغییرها روی سیو انتخاب‌شده اعمال شوند؟ ETS2 باید بسته باشد. ابتدا بکاپ چرخشی فعلی اجرا می‌شود."),
+    "cheat_saved": ("Changes were written and verified.", "تغییرها نوشته و اعتبارسنجی شدند."),
+    "cheat_invalid_number": ("Enter a valid number.", "یک عدد معتبر وارد کن."),
+    "cheat_no_changes": ("No supported skill values changed.", "هیچ مقدار مهارت پشتیبانی‌شده‌ای تغییر نکرده است."),
+    "cheat_write_unsupported": ("This save is not writable through a verified path. Use ETS2 to save as SiiN text, then reload it.", "برای این سیو مسیر نوشتن معتبر نداریم. در ETS2 سیو متنی SiiN بساز و دوباره بارگذاری کن."),
+    "cheat_level_derived": ("Driver level is derived from XP in the save; this editor changes XP and reports the resulting level, not an independent level field.", "سطح راننده از XP محاسبه می‌شود؛ برنامه XP را تغییر می‌دهد و سطح حاصل را نشان می‌دهد، نه یک فیلد مستقل سطح."),
+    "cheat_skills_title": ("Driver skills", "مهارت‌های راننده"),
+    "cheat_skill_note": ("Only existing skill fields and ADR flags are edited.", "فقط فیلدهای موجود مهارت و پرچم‌های ADR ویرایش می‌شوند."),
+    "cheat_fleet_note": ("Uses the existing verified repair and relative-fuel fields. Liters and unsupported damage fields are not guessed.", "از فیلدهای تأییدشدهٔ تعمیر و سطح نسبی سوخت استفاده می‌کند؛ لیتر یا فیلد خسارت نامشخص حدس زده نمی‌شود."),
+    "cheat_runtime_title": ("Runtime features", "قابلیت‌های زمان اجرا"),
+    "cheat_runtime_note": ("The app does not inject code or write arbitrary game memory.", "برنامه کد تزریق نمی‌کند و حافظهٔ دلخواه بازی را نمی‌نویسد."),
+    "cheat_game_process": ("ETS2 process", "فرایند ETS2"),
+    "cheat_game_version": ("Detected game version", "نسخهٔ شناسایی‌شدهٔ بازی"),
+    "cheat_running": ("Running", "در حال اجرا"),
+    "cheat_not_running": ("Not running", "اجرا نیست"),
+    "cheat_enable_console": ("Enable developer mode and console", "فعال‌کردن حالت توسعه‌دهنده و کنسول"),
+    "cheat_enable_console_confirm": ("With ETS2 closed, update config.cfg to enable developer mode and the console? A configuration backup will be made.", "با بسته‌بودن ETS2، حالت توسعه‌دهنده و کنسول در config.cfg فعال شوند؟ از تنظیمات بکاپ گرفته می‌شود."),
+    "cheat_close_game": ("Close ETS2 before changing config.cfg.", "برای تغییر config.cfg ابتدا ETS2 را ببند."),
+    "cheat_free_camera": ("Developer free camera", "دوربین آزاد توسعه‌دهنده"),
+    "cheat_manual_status": ("Manual in-game controls · the app does not move the camera or truck.", "کنترل دستی داخل بازی · برنامه دوربین یا کامیون را جابه‌جا نمی‌کند."),
+    "cheat_requires_console": ("Requires developer mode; bindings can vary by profile/version.", "به حالت توسعه‌دهنده نیاز دارد؛ کلیدها ممکن است بسته به پروفایل/نسخه فرق کنند."),
+    "cheat_camera_steps": ("With the game open, press 0 on the main keyboard for free camera. Use the numpad to move and the mouse to look; adjust fly speed with the wheel.", "در بازی، صفرِ ردیف اصلی صفحه‌کلید را برای دوربین آزاد بزن. با نام‌پد حرکت کن و با ماوس جهت را عوض کن؛ سرعت پرواز با چرخ ماوس تنظیم می‌شود."),
+    "cheat_teleport_steps": ("To move the truck to the camera position, SCS forum guidance reports Ctrl+F9 on newer controls. Check your Controls bindings and keep the camera close to the road; this is a manual game action.", "برای انتقال کامیون به محل دوربین، راهنمای انجمن SCS در کنترل‌های جدید Ctrl+F9 را ذکر می‌کند. کلیدهای Controls را بررسی و دوربین را نزدیک جاده نگه دار؛ این کار دستی داخل بازی است."),
+    "cheat_camera_note": ("Camera movement alone never teleports the truck. The key behavior has not been tested in your installed game build.", "حرکت دوربین به‌تنهایی کامیون را منتقل نمی‌کند. عملکرد کلید در نسخهٔ نصب‌شدهٔ بازی تو آزمایش نشده است."),
+    "cheat_unlimited_fuel": ("Infinite fuel", "سوخت بی‌نهایت"),
+    "cheat_no_damage": ("No damage", "بدون خسارت"),
+    "cheat_fatigue": ("Fatigue simulation", "شبیه‌سازی خستگی"),
+    "cheat_fines": ("Police fines", "جریمه‌های پلیس"),
+    "cheat_time": ("Change game time", "تغییر زمان بازی"),
+    "cheat_sim_speed": ("Simulation speed", "سرعت شبیه‌سازی"),
+    "cheat_unlimited_fuel_note": ("Infinite fuel is not exposed. Use the verified refuel action or a separately tested mod.", "سوخت بی‌نهایت به‌صورت گزینه ارائه نمی‌شود؛ از سوخت‌گیری تأییدشده یا ماد جداگانهٔ آزمایش‌شده استفاده کن."),
+    "cheat_unsupported": ("Unsupported", "پشتیبانی‌نشده"),
+    "cheat_unsupported_runtime": ("No validated version-specific runtime mechanism is available; no toggle is exposed.", "روش زمان‌اجرای معتبر و وابسته به نسخه نداریم؛ دکمهٔ جعلی ارائه نشده است."),
+    "cheat_unverified_save_field": ("The required save fields have not been verified in supported sample saves.", "فیلدهای لازم در نمونه‌های معتبر سیو تأیید نشده‌اند."),
+    "cheat_unverified_command": ("No verified command for the target game build; this is not sent to the game.", "فرمان معتبر برای نسخهٔ هدف پیدا نشده؛ چیزی به بازی ارسال نمی‌شود."),
+    "cheat_no_memory_edit": ("No arbitrary memory edits or process injection", "بدون دست‌کاری حافظه یا تزریق فرایند"),
+    "cheat_result_success": ("Completed", "انجام شد"),
+    "cheat_result_failed": ("Failed", "ناموفق"),
+    "cheat_result_blocked": ("Blocked", "متوقف شد"),
+    "cheat_result_unknown": ("Unknown result", "نتیجه نامشخص"),
+    "cheat_history": ("Operation history", "تاریخچهٔ عملیات"),
+    "cheat_history_note": ("Recent results are stored under the ETS2 Documents folder.", "نتایج اخیر در پوشهٔ Documents بازی ETS2 نگه‌داری می‌شوند."),
+    "cheat_history_empty": ("No Cheat Center operations yet.", "هنوز عملیاتی از مرکز چیت ثبت نشده است."),
+    "cheat_supported_settings": ("Supported game settings", "تنظیم‌های پشتیبانی‌شدهٔ بازی"),
+    "cheat_fuel_model": ("Realistic fuel consumption", "مصرف واقع‌گرایانهٔ سوخت"),
+    "cheat_speed_limiter": ("Speed limiter", "محدودکنندهٔ سرعت"),
+    "cheat_setting_on": ("On", "روشن"),
+    "cheat_setting_off": ("Off", "خاموش"),
+    "cheat_setting_enable": ("Enable", "فعال‌کردن"),
+    "cheat_setting_disable": ("Disable", "غیرفعال‌کردن"),
+    "cheat_setting_confirm": ("Change this game setting? ETS2 must be closed. A config backup will be created; restart the game for it to take effect.", "این تنظیم بازی تغییر کند؟ ETS2 باید بسته باشد. بکاپ تنظیمات گرفته می‌شود؛ برای اعمال، بازی را دوباره اجرا کن."),
+    "cheat_profile_setting_note": ("This setting is stored with the selected profile.", "این تنظیم در پوشهٔ پروفایل انتخاب‌شده ذخیره می‌شود."),
+    "cheat_fatigue_note": ("Turns fatigue simulation on or off.", "شبیه‌سازی خستگی را روشن یا خاموش می‌کند."),
+    "cheat_fines_note": ("Turns police penalties on or off.", "جریمه‌های پلیس را روشن یا خاموش می‌کند."),
+    "cheat_fuel_model_note": ("Changes realistic fuel-consumption simulation. Off still consumes fuel; this is not infinite fuel.", "مدل مصرف واقع‌گرایانهٔ سوخت را تغییر می‌دهد. در حالت خاموش هم سوخت مصرف می‌شود؛ این گزینه سوخت بی‌نهایت نیست."),
+    "cheat_speed_limiter_note": ("Turns the game's speed limiter on or off; this does not guarantee a specific top speed.", "محدودکنندهٔ سرعت بازی را روشن یا خاموش می‌کند؛ سرعت نهایی مشخصی را تضمین نمی‌کند."),
+    "cheat_guide_title": ("Guide", "راهنما"),
+    "cheat_guide_intro": ("How to use TR-EURO-EDITOR safely and understand what each feature changes.", "روش استفادهٔ امن از TR-EURO-EDITOR و توضیح تغییر هر قابلیت."),
+    "guide_first_steps": ("Getting started", "شروع کار"),
+    "guide_first_steps_body": ("Choose the ETS2 Documents folder, then select a profile and save. Check the profile, save name, format, and modified time before editing.", "پوشهٔ Documents بازی ETS2 را انتخاب کن، بعد پروفایل و سیو را برگزین. پیش از ویرایش، نام پروفایل، سیو، قالب و زمان آخرین تغییر را بررسی کن."),
+    "guide_save_editing": ("Save editing", "ویرایش سیو"),
+    "guide_save_editing_body": ("Money, XP, supported skills, ADR, known city discovery, and verified vehicle repair/refuel fields can be edited in supported SiiN text saves. ScsC-wrapped text is readable and writable; successful edits are backed up and verified.", "پول، XP، مهارت‌ها و ADR پشتیبانی‌شده، شهرهای شناخته‌شده و فیلدهای تأییدشدهٔ تعمیر/سوخت‌گیری در سیو متنی SiiN قابل ویرایش‌اند. متن داخل پوشش ScsC هم خوانده و نوشته می‌شود؛ تغییرها بکاپ و اعتبارسنجی می‌شوند."),
+    "guide_binary_limit": ("Binary save limitation", "محدودیت سیو باینری"),
+    "guide_binary_limit_body": ("BSII binary saves are read-only because safe binary writing has not been verified. The app defaults future saves to text with a config backup. Open ETS2, load the profile, make a new in-game save, close ETS2, then load that new save here. This does not convert an existing binary save.", "سیوهای باینری BSII فقط‌خواندنی‌اند چون نوشتن امن آن‌ها تأیید نشده است. برنامه برای سیوهای آینده حالت متنی را با بکاپ تنظیمات فعال می‌کند. ETS2 را باز کن، پروفایل را بارگذاری و داخل بازی سیو جدید بگیر؛ بعد بازی را ببند و سیو تازه را اینجا باز کن. سیو باینری فعلی تبدیل نمی‌شود."),
+    "guide_cheats": ("Cheat Center", "مرکز چیت"),
+    "guide_cheats_body": ("Money, XP, skills, repair, and refuel operate on the selected save. Fatigue, fines, realistic fuel model, and speed limiter controls update the selected profile config.cfg, create a backup, and require ETS2 to be closed. Restart the game to apply them.", "پول، XP، مهارت، تعمیر و سوخت‌گیری روی سیو انتخاب‌شده اعمال می‌شوند. گزینه‌های خستگی، جریمه، مدل مصرف سوخت و محدودکنندهٔ سرعت، config.cfg پروفایل انتخاب‌شده را با بکاپ تغییر می‌دهند و ETS2 باید بسته باشد. برای اعمال تنظیمات بازی را دوباره اجرا کن."),
+    "guide_fuel_caveat": ("Fuel setting note", "نکتهٔ مصرف سوخت"),
+    "guide_fuel_caveat_body": ("Disabling realistic fuel consumption does not stop fuel use. The app's refuel action fills only recognized fuel fields in a supported text save.", "خاموش‌کردن مصرف واقع‌گرایانه باعث توقف مصرف سوخت نمی‌شود. گزینهٔ سوخت‌گیری برنامه فقط فیلدهای سوخت شناخته‌شده را در سیو متنی پشتیبانی‌شده پر می‌کند."),
+    "guide_runtime": ("In-game controls", "کنترل‌های داخل بازی"),
+    "guide_runtime_body": ("The developer camera and truck teleport are manual game actions. The current guide mentions the common 0 and Ctrl+F9 controls, but bindings can vary. Time changes and simulation-speed commands are not sent by this app.", "دوربین توسعه‌دهنده و انتقال کامیون عملیات دستی داخل بازی‌اند. راهنمای فعلی کلیدهای رایج 0 و Ctrl+F9 را ذکر می‌کند، اما کلیدها ممکن است فرق کنند. برنامه فرمان تغییر زمان یا سرعت شبیه‌سازی را اجرا نمی‌کند."),
+    "guide_backups": ("Backups and restore", "بکاپ و بازیابی"),
+    "guide_backups_body": ("Before supported save or config writes, the existing backup policy runs. Restore first backs up the current file. Keep ETS2 closed while editing or restoring.", "پیش از نوشتن سیو یا تنظیمات پشتیبانی‌شده، سیاست فعلی بکاپ اجرا می‌شود. بازیابی ابتدا از فایل فعلی بکاپ می‌گیرد. هنگام ویرایش یا بازیابی ETS2 را ببند."),
+    "guide_mods": ("Mods and tuning", "مادها و تیونینگ"),
+    "guide_mods_body": ("Generated mods receive static archive/path checks. Static validation does not prove in-game compatibility or purchase availability; test mods in a backed-up profile.", "مادهای ساخته‌شده از نظر آرشیو و مسیر فایل‌ها اعتبارسنجی ایستا می‌شوند. این بررسی سازگاری یا قابل‌خریدبودن قطعه در بازی را ثابت نمی‌کند؛ ماد را در پروفایلی که بکاپ دارد آزمایش کن."),
+    "guide_unavailable": ("If a value or operation is unsupported, the app should say so instead of guessing. In-game compatibility has not been tested unless explicitly stated.", "اگر مقدار یا عملیاتی پشتیبانی نشود، برنامه باید همین را بگوید و حدس نزند. سازگاری داخل بازی آزمایش‌شده نیست مگر صریحاً اعلام شود."),
+    "cheat_history_saved": ("History entry could not be saved; the save operation result is still shown.", "ثبت تاریخچه انجام نشد؛ نتیجهٔ عملیات سیو همچنان نمایش داده می‌شود."),
     "web_theme_previews": ("Theme previews", "پیش‌نمایش تم‌ها"),
     "web_custom_accent": ("Custom accent color", "رنگ تأکیدی دلخواه"),
     "web_reset_accent": ("Reset to Theme Default", "بازگشت به رنگ پیش‌فرض تم"),
@@ -5083,7 +5188,7 @@ def run_gui():
             return
         cfg_vars["developer"].set(c.get("g_developer") == "1")
         cfg_vars["console"].set(c.get("g_console") == "1")
-        cfg_vars["savefmt"].set(c.get("g_save_format") == "2")
+        cfg_vars["savefmt"].set(c.get("g_save_format", DEFAULT_SAVE_FORMAT) == "2")
 
     def apply_cfg():
         if game_running():

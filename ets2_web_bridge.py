@@ -6,6 +6,7 @@ paths to core write functions. Each target is re-resolved beneath the selected k
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import re
@@ -151,6 +152,30 @@ class EditorBridge:
         if game:
             try:
                 config = self.core.read_config(game)
+                # Profile variables are stored alongside the selected profile.
+                if selected_profile_index is not None:
+                    profile_cfg = Path(self.profile_path) / "config.cfg"
+                    if profile_cfg.is_file():
+                        profile_values = self.core.read_config(self.profile_path)
+                        profile_keys = {self.core.CONFIG_KEYS[k] for k in
+                                        ("fatigue", "police", "fuel_simulation", "speed_limiter")}
+                        config.update({k: v for k, v in profile_values.items()
+                                       if k in profile_keys})
+                # Default future ETS2 saves to editable text. The existing save is
+                # never converted here; config.cfg is backed up by write_config.
+                if (config.get("g_save_format", self.core.DEFAULT_SAVE_FORMAT)
+                        != self.core.DEFAULT_SAVE_FORMAT and not self.core.game_running()):
+                    self.core.write_config(game, {
+                        "g_save_format": self.core.DEFAULT_SAVE_FORMAT})
+                    config = self.core.read_config(game)
+                    if selected_profile_index is not None:
+                        profile_cfg = Path(self.profile_path) / "config.cfg"
+                        if profile_cfg.is_file():
+                            profile_values = self.core.read_config(self.profile_path)
+                            profile_keys = {self.core.CONFIG_KEYS[k] for k in
+                                            ("fatigue", "police", "fuel_simulation", "speed_limiter")}
+                            config.update({k: v for k, v in profile_values.items()
+                                           if k in profile_keys})
             except Exception as exc:
                 errors["config"] = str(exc)
         if selected_profile_index is not None:
@@ -158,12 +183,21 @@ class EditorBridge:
                 mods = self._mod_rows()
             except Exception as exc:
                 errors["mods"] = str(exc)
+        history = []
+        if game:
+            try:
+                history = self.cheat_history()
+            except Exception as exc:
+                errors["history"] = str(exc)
         return {"game_options": game_options, "game_index": self.game_index if game else None,
                 "game_path": str(game) if game else None, "profiles": profile_rows,
                 "profile_index": selected_profile_index, "profile_name": selected_profile_name,
                 "saves": save_rows, "save_index": selected_save_index,
                 "save_path": selected_path, "summary": summary, "fleet": fleet,
-                "backup": backup, "config": config, "mods": mods, "errors": errors}
+                "backup": backup, "config": config, "mods": mods,
+                "operation_history": history, "game_running": self.core.game_running(),
+                "game_version": self.core.detect_game_version(game) if game else "",
+                "errors": errors}
 
     def select_game(self, index):
         self.game_index = self._index(index, len(self.games), "game folder")
@@ -289,7 +323,22 @@ class EditorBridge:
             chosen = [item for item in chosen if item.get("repair_supported")]
         if not chosen:
             raise ValueError("No selected owned vehicle has supported fields")
-        return self._save_edits({}, extras=[action], vehicle_ids=[x["id"] for x in chosen])
+        before = [{"id": x["id"], "fuel": x.get("fuel_relative"),
+                   "damage": x.get("damage")} for x in chosen]
+        try:
+            result = self._save_edits({}, extras=[action], vehicle_ids=[x["id"] for x in chosen])
+        except Exception as exc:
+            self._record_cheat("fleet", action, before, None, "failed", str(exc))
+            raise
+        after_fleet = result.get("state", {}).get("fleet") or {}
+        all_items = after_fleet.get("trucks", []) + after_fleet.get("trailers", [])
+        by_id = {item.get("id"): item for item in all_items}
+        after = [{"id": x["id"], "fuel": by_id.get(x["id"], {}).get("fuel_relative"),
+                  "damage": by_id.get(x["id"], {}).get("damage")} for x in chosen]
+        self._record_cheat("fleet", action, before, after, "success", f"{len(chosen)} vehicle(s)")
+        result["operation_history"] = self.cheat_history()
+        result["state"]["operation_history"] = result["operation_history"]
+        return result
 
     def restore_backup(self, index=0):
         save = self._save()
@@ -388,20 +437,194 @@ class EditorBridge:
         verdict, details = self.core.validate_mod(path, self._game(), self.core.detect_game_version(self._game()))
         return {"verdict": verdict, "details": details}
 
+    def _history_path(self):
+        return self.core.editor_storage_root(self._game()) / "logs" / "cheat_history.json"
+
+    def cheat_history(self):
+        path = self._history_path()
+        try:
+            rows = json.loads(path.read_text(encoding="utf-8"))
+        except FileNotFoundError:
+            return []
+        except (OSError, ValueError, TypeError):
+            return []
+        if not isinstance(rows, list):
+            return []
+        # Keep only simple JSON values expected by the UI; never trust old history contents.
+        allowed = {"time", "profile", "save", "category", "operation", "before",
+                   "after", "result", "details"}
+        return [{k: row[k] for k in allowed if k in row}
+                for row in rows[:100] if isinstance(row, dict)]
+
+    def _record_cheat(self, category, operation, before=None, after=None,
+                      result="success", details=""):
+        row = {"time": time.strftime("%Y-%m-%d %H:%M:%S"),
+               "profile": self.profile_label or "", "save": self.save_slot or "",
+               "category": str(category)[:40], "operation": str(operation)[:80],
+               "before": before, "after": after, "result": result,
+               "details": str(details)[:240]}
+        try:
+            path = self._history_path()
+            path.parent.mkdir(parents=True, exist_ok=True)
+            rows = self.cheat_history()
+            rows.insert(0, row)
+            tmp = self.core._write_temp_bytes(
+                path, json.dumps(rows[:100], ensure_ascii=False, indent=2).encode("utf-8"))
+            try:
+                os.replace(tmp, path)
+            except Exception:
+                tmp.unlink(missing_ok=True)
+                raise
+            return True
+        except Exception:
+            logging.getLogger(__name__).exception("Could not persist Cheat Center history")
+            return False
+
+    def _compute_cheat_preview(self, payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Invalid Cheat Center request")
+        category = payload.get("category")
+        save = self._save()
+        loaded = self.core.SaveFile(save)
+        loaded.verify()
+        current = loaded.read()
+        writable = self.core.save_writes_supported(loaded.kind, loaded.was_encrypted)
+        if category in ("money", "xp"):
+            if set(payload) != {"category", "operation", "amount"}:
+                raise ValueError("Invalid economy edit")
+            operation = payload["operation"]
+            if operation not in ("set", "add", "multiply", "max"):
+                raise ValueError("Unsupported economy operation")
+            if operation == "max":
+                if category != "money":
+                    raise ValueError("Maximum is available only for money")
+                value = self.core.MAX_MONEY
+            else:
+                amount = payload["amount"]
+                if isinstance(amount, bool) or not isinstance(amount, (int, float)) or not math.isfinite(amount):
+                    raise ValueError("Enter a valid number")
+                if operation in ("set", "add") and not isinstance(amount, int):
+                    raise ValueError("Money and XP must use whole numbers")
+                if operation == "multiply" and not 0 <= amount <= 1000000:
+                    raise ValueError("Multiplier must be between 0 and 1,000,000")
+                key = "money" if category == "money" else "xp"
+                before_value = current.get(key)
+                if before_value is None:
+                    raise ValueError("Current value is unavailable")
+                if operation == "set":
+                    value = amount
+                elif operation == "add":
+                    value = before_value + amount
+                else:
+                    value = int(round(before_value * amount))
+            key = "money" if category == "money" else "xp"
+            before_value = current.get(key)
+            maximum = self.core.MAX_MONEY if category == "money" else self.core.INT32_MAX
+            if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= maximum:
+                raise ValueError(f"Result must be between 0 and {maximum:,}")
+            before = {key: before_value}
+            after = {key: value}
+            before_level = self.core.rank_for_xp(current.get("xp", 0))[0]
+            after_level = self.core.rank_for_xp(value if category == "xp" else current.get("xp", 0))[0]
+            if category == "xp":
+                before["level"] = before_level
+                after["level"] = after_level
+            values = {key: value}
+            label = operation
+        elif category == "skills":
+            if set(payload) != {"category", "values"} or not isinstance(payload["values"], dict):
+                raise ValueError("Invalid skill edit")
+            values = payload["values"]
+            allowed = set(self.core.SKILLS) | {"adr"}
+            if not values or not set(values).issubset(allowed):
+                raise ValueError("Choose at least one supported skill")
+            clean = {}
+            for key, value in values.items():
+                if isinstance(value, bool) or not isinstance(value, int):
+                    raise ValueError(f"Invalid {key}")
+                low, high = (0, 63) if key == "adr" else (0, 6)
+                if not low <= value <= high:
+                    raise ValueError(f"{key} must be between {low} and {high}")
+                clean[key] = value
+            values = clean
+            before = {key: current.get(key) for key in values}
+            after = dict(values)
+            label = "set skills"
+            before_level = after_level = self.core.rank_for_xp(current.get("xp", 0))[0]
+        else:
+            raise ValueError("Unsupported Cheat Center category")
+        return {"category": category, "operation": label, "before": before,
+                "after": after, "values": values, "level_before": before_level,
+                "level_after": after_level, "writable": writable,
+                "profile": self.profile_label, "save": self.save_slot,
+                "format": loaded.kind, "encrypted": loaded.was_encrypted}
+
+    def cheat_preview(self, payload):
+        """Read-only dry run for an economy or supported skills edit."""
+        return self._compute_cheat_preview(payload)
+
+    def cheat_apply(self, payload):
+        if not isinstance(payload, dict) or payload.get("confirmed") is not True:
+            raise ValueError("Confirm the previewed changes before applying")
+        clean = {key: value for key, value in payload.items() if key != "confirmed"}
+        preview = self._compute_cheat_preview(clean)
+        if not preview["writable"]:
+            raise ValueError("This save payload is unsupported for writing; load a SiiN text save")
+        if self.core.game_running():
+            self._record_cheat(preview["category"], preview["operation"], preview["before"],
+                               preview["after"], "blocked", "ETS2 is running")
+            raise ValueError("Close ETS2 before editing the save")
+        try:
+            result = self._save_edits(preview["values"])
+        except Exception as exc:
+            self._record_cheat(preview["category"], preview["operation"], preview["before"],
+                               preview["after"], "failed", str(exc))
+            raise
+        saved = self._record_cheat(preview["category"], preview["operation"],
+                                   preview["before"], preview["after"], "success",
+                                   "Backup: " + result["backup"])
+        result.update({"preview": preview, "history_saved": saved,
+                       "operation_history": self.cheat_history()})
+        result["state"]["operation_history"] = result["operation_history"]
+        return result
+
     def save_game_settings(self, values):
         if not isinstance(values, dict) or set(values) - set(self.core.CONFIG_KEYS):
             raise ValueError("Unsupported game settings")
         if self.core.game_running():
             raise ValueError("Close ETS2 before changing game settings")
         clean = {}
+        profile_keys = {"fatigue", "police", "fuel_simulation", "speed_limiter"}
         for key, value in values.items():
             if not isinstance(value, str) or value not in ("0", "1", "2"):
                 raise ValueError("Invalid config value")
             if key != "savefmt" and value not in ("0", "1"):
                 raise ValueError("Invalid config toggle")
-            clean[self.core.CONFIG_KEYS[key]] = value
-        self.core.write_config(self._game(), clean)
-        return self.state()
+            clean[key] = value
+        game = self._game()
+        profile_path = self._profile()[1] if any(k in profile_keys for k in clean) else None
+        before_config = self.core.read_config(game)
+        if profile_path is not None:
+            profile_values = self.core.read_config(profile_path)
+            profile_config_keys = {self.core.CONFIG_KEYS[k] for k in profile_keys}
+            before_config.update({k: v for k, v in profile_values.items()
+                                  if k in profile_config_keys})
+        global_changes = {self.core.CONFIG_KEYS[k]: v for k, v in clean.items()
+                          if k not in profile_keys}
+        profile_changes = {self.core.CONFIG_KEYS[k]: v for k, v in clean.items()
+                           if k in profile_keys}
+        if global_changes:
+            self.core.write_config(game, global_changes)
+        if profile_changes:
+            self.core.write_config(profile_path, profile_changes)
+        changed_before = {key: before_config.get(self.core.CONFIG_KEYS[key])
+                          for key in clean}
+        state = self.state()
+        if any(changed_before.get(key) != value for key, value in clean.items()):
+            self._record_cheat("runtime", "game config", changed_before, clean,
+                               "success", "config.cfg backup created")
+            state["operation_history"] = self.cheat_history()
+        return state
 
     def enable_text_save_mode(self):
         """Ask ETS2 to write future saves as text; never rewrite the selected save here."""
@@ -411,8 +634,10 @@ class EditorBridge:
         game = self._game()
         config = self.core.read_config(game)
         if config.get(self.core.CONFIG_KEYS["savefmt"]) != "2":
-            self.core.write_config(game, {self.core.CONFIG_KEYS["savefmt"]: "2"})
-        return {"state": self.state(), "enabled": True}
+            state = self.save_game_settings({"savefmt": "2"})
+        else:
+            state = self.state()
+        return {"state": state, "enabled": True}
 
     def log_tail(self):
         path = self.core.game_log_path(self._game())

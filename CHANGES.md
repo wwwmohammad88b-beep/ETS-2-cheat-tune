@@ -34,3 +34,17 @@
 - Run GitHub Actions or a Windows build machine with PyInstaller and Inno Setup.
 - Verify the WebView2 UI and installer on a real Windows user account, including Persian text shaping.
 - Capture and inspect the requested screenshot matrix and test with a real ETS2 1.60.1.7 save. In-game generated-mod compatibility remains unverified.
+
+
+## Writable encrypted text saves
+
+- Enabled verified edits for saves whose decoded payload is SiiN text, including ScsC-wrapped saves. The editor writes the verified result as plain SiiN text after its existing rolling backup and atomic validation flow.
+- Kept BSII binary saves read-only because end-to-end binary serialization has not been validated.
+- Updated the UI limitation text and regression tests; added a synthetic ScsC-wrapped save edit/backup round-trip test.
+
+
+## Cheat Center
+
+- Added a bilingual Cheat Center sidebar page with category filtering, selected profile/save context, save-backed money/XP/skills previews, confirmed writes, existing verified truck repair/refuel actions, and persistent operation history under the ETS2 Documents data directory.
+- Exposed the detected ETS2 game version and process state for runtime compatibility context; added a backed-up config action for developer mode/console.
+- Documented free-camera and manual truck teleport keys without claiming the app executes them. Runtime fuel/damage/fatigue/fine/time/simulation-speed toggles remain unsupported; BSII binary saves remain read-only.

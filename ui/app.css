@@ -178,3 +178,9 @@ tr:last-child td { border-bottom:0; }
 .accent-swatch:hover { border-color:var(--accent); }
 .status-dot[data-error="true"] { background:var(--error); box-shadow:0 0 10px color-mix(in srgb,var(--error),transparent 35%); }
 .toast-error { border-color:var(--error); }
+
+.cheat-toolbar { display:grid; grid-template-columns:minmax(220px,2fr) minmax(180px,1fr); gap:12px; margin:12px 0 18px; }
+.status-grid { grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); }
+.metric-row { gap:12px; }
+[data-cheat-category="history"] .metric-row strong { overflow-wrap:anywhere; text-align:end; }
+@media (max-width:680px) { .cheat-toolbar { grid-template-columns:1fr; } }
