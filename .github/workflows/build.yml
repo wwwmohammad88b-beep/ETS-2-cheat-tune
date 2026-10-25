@@ -1,4 +1,5 @@
 name: Build Windows installer
+
 on:
   workflow_dispatch:
   push:
@@ -7,16 +8,20 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
       - name: Install Python dependencies
         shell: pwsh
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
+
       - name: Verify source files
         shell: pwsh
         run: |
@@ -29,40 +34,80 @@ jobs:
             "ui/index.html",
             "ui/app.js",
             "ui/app.css",
+            "ui/assets/hero-road-truck.svg",
             "tests",
             "tuning_templates/def/vehicle/truck/mercedes.actros2014/engine",
             "tuning_templates/def/vehicle/truck/volvo.fh_2024/engine",
             "tuning_templates/def/vehicle/truck/scania.s_2024e/engine"
           )
+
           foreach ($path in $required) {
-            if (-not (Test-Path $path)) { throw "Required project file or folder is missing: $path" }
+            if (-not (Test-Path $path)) {
+              throw "Required project file or folder is missing: $path"
+            }
           }
+
       - name: Verify crypto runtime
         shell: pwsh
         run: python -c "from Crypto.Cipher import AES; print('PyCryptodome AES import OK')"
+
       - name: Run regression tests
         run: python -m unittest discover -s tests -v
+
       - name: Build standalone executable
         run: python -m PyInstaller --clean --noconfirm --onefile --windowed --name ETS2SaveEditor --icon app.ico --version-file version_info.txt --collect-all Crypto --collect-all webview --hidden-import webview.platforms.edgechromium --hidden-import clr --add-data "ui;ui" --add-data "tuning_templates;tuning_templates" ets2_save_editor.py
+
       - name: Verify PyInstaller analysis collected runtime files
         shell: pwsh
         run: |
           $analysis = Get-Content "build/ETS2SaveEditor/Analysis-00.toc" -Raw
-          if (-not $analysis.Contains("Crypto.Cipher.AES")) { throw "PyInstaller analysis does not contain Crypto.Cipher.AES." }
-          if (-not $analysis.Contains("webview.platforms.edgechromium")) { throw "PyInstaller analysis does not contain the WebView2 backend." }
-          if (-not $analysis.Contains("ets2_web_bridge")) { throw "PyInstaller analysis does not contain the Python bridge." }
-          if (-not $analysis.Contains("index.html") -or -not $analysis.Contains("app.js") -or -not $analysis.Contains("app.css")) { throw "PyInstaller analysis does not contain all UI files." }
-          if (-not $analysis.Contains("tuning_templates")) { throw "PyInstaller analysis does not contain the tuning templates." }
-          if (-not (Test-Path "dist/ETS2SaveEditor.exe")) { throw "Standalone executable was not created." }
+
+          if (-not $analysis.Contains("Crypto.Cipher.AES")) {
+            throw "PyInstaller analysis does not contain Crypto.Cipher.AES."
+          }
+
+          if (-not $analysis.Contains("webview.platforms.edgechromium")) {
+            throw "PyInstaller analysis does not contain the WebView2 backend."
+          }
+
+          if (-not $analysis.Contains("ets2_web_bridge")) {
+            throw "PyInstaller analysis does not contain the Python bridge."
+          }
+
+          if (
+            -not $analysis.Contains("index.html") -or
+            -not $analysis.Contains("app.js") -or
+            -not $analysis.Contains("app.css") -or
+            -not $analysis.Contains("hero-road-truck.svg")
+          ) {
+            throw "PyInstaller analysis does not contain all UI files and artwork."
+          }
+
+          if (-not $analysis.Contains("tuning_templates")) {
+            throw "PyInstaller analysis does not contain the tuning templates."
+          }
+
+          if (-not (Test-Path "dist/ETS2SaveEditor.exe")) {
+            throw "Standalone executable was not created."
+          }
+
       - name: Install Inno Setup
         run: choco install innosetup -y --no-progress
+
       - name: Compile installer
         run: '& "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss'
+
       - name: Verify build outputs
         shell: pwsh
         run: |
-          if (-not (Test-Path "dist/ETS2SaveEditor.exe")) { throw "Standalone executable was not created." }
-          if (-not (Test-Path "installer/ETS2SaveEditor_Setup.exe")) { throw "Installer was not created." }
+          if (-not (Test-Path "dist/ETS2SaveEditor.exe")) {
+            throw "Standalone executable was not created."
+          }
+
+          if (-not (Test-Path "installer/ETS2SaveEditor_Setup.exe")) {
+            throw "Installer was not created."
+          }
+
       - uses: actions/upload-artifact@v4
         with:
           name: ETS2SaveEditor-Windows
