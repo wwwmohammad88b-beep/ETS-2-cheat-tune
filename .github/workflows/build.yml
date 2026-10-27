@@ -28,6 +28,7 @@ jobs:
           $required = @(
             "ets2_save_editor.py",
             "ets2_web_bridge.py",
+            "ets2_music.py",
             "app.ico",
             "version_info.txt",
             "installer.iss",
@@ -72,6 +73,10 @@ jobs:
 
           if (-not $analysis.Contains("ets2_web_bridge")) {
             throw "PyInstaller analysis does not contain the Python bridge."
+          }
+
+          if (-not $analysis.Contains("ets2_music")) {
+            throw "PyInstaller analysis does not contain the music/radio module."
           }
 
           if (
