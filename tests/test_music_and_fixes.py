@@ -289,7 +289,8 @@ class BridgeMusicTests(Fixture):
     def test_open_folder_is_a_whitelist(self):
         with mock.patch("ets2_web_bridge.os.startfile", create=True) as opener:
             self.bridge.open_folder("music")
-            opener.assert_called_once_with(str(self.game / "music"))
+            opener.assert_called_once()
+            self.assertTrue(Path(opener.call_args.args[0]).samefile(self.game / "music"))
             for bad in ("../..", "C:\\Windows", "", None, "MUSIC", 3):
                 with self.assertRaises(ValueError):
                     self.bridge.open_folder(bad)
