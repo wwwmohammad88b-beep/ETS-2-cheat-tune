@@ -1,0 +1,91 @@
+const {JSDOM}=require(process.env.JSDOM_PATH||'jsdom');
+const {spawn}=require('child_process');const fs=require('fs');const path=require('path');
+const ROOT=process.argv[2], SCENARIO=process.argv[3]||'all';
+const py=spawn('python3',[require('path').join(__dirname,'server.py'),ROOT],{stdio:['pipe','pipe','inherit']});
+let buf='',pending=new Map(),nextId=1,info=null,readyRes;const ready=new Promise(r=>readyRes=r);
+py.stdout.on('data',d=>{buf+=d;let i;while((i=buf.indexOf('\n'))>=0){const line=buf.slice(0,i);buf=buf.slice(i+1);if(!line.trim())continue;const m=JSON.parse(line);if(m.ready){info=m;readyRes();continue}const p=pending.get(m.id);if(p){pending.delete(m.id);m.ok?p.res(m.r):p.rej(new Error(m.e))}}});
+const calls=[];
+function rpc(m,a){return new Promise((res,rej)=>{const id=nextId++;pending.set(id,{res,rej});calls.push([m,a]);py.stdin.write(JSON.stringify({id,m,a})+'\n')})}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+let failed=0,passed=0;function ok(c,msg){if(c){passed++;console.log('  PASS',msg)}else{failed++;console.log('  FAIL',msg)}}
+(async()=>{
+ await ready;
+ const html=fs.readFileSync(path.join(ROOT,'ui/index.html'),'utf8');
+ const dom=new JSDOM(html,{url:'http://localhost/',runScripts:'outside-only',pretendToBeVisual:true,beforeParse(w){
+   w.pywebview={api:new Proxy({},{get:(_,n)=>n==='then'||typeof n==='symbol'?undefined:(...a)=>rpc(n,a)})};
+   w.URL.createObjectURL=()=> 'data:text/css,';w.HTMLMediaElement.prototype.play=function(){this._played=true;return Promise.resolve()};w.HTMLMediaElement.prototype.pause=function(){};
+   w.confirm=()=>true;w.matchMedia=w.matchMedia||(()=>({matches:false,addListener(){},addEventListener(){}}));
+ }});
+ const w=dom.window,doc=w.document;
+ w.eval(fs.readFileSync(path.join(ROOT,'ui/app.js'),'utf8'));
+ await sleep(1200);
+ const text=()=>doc.body.textContent;
+ const navBtns=()=>[...doc.querySelectorAll('nav button, .nav button, aside button')];
+ const go=async(label)=>{const b=navBtns().find(x=>x.textContent.includes(label));if(!b)throw new Error('nav not found: '+label);b.click();await sleep(700)};
+ const click=async(pred)=>{const b=[...doc.querySelectorAll('button')].find(pred);if(!b)throw new Error('button not found');b.click();await sleep(900);return b};
+ try{
+  console.log('# nav labels:',navBtns().map(b=>b.textContent.trim()).join(' | '));
+  console.log('# dashboard');
+  ok(/Game health/.test(text()),'dashboard shows Game health card');
+  await sleep(900);
+  ok(/Radio & music/.test(text()),'dashboard shows Radio & music card');
+  ok(/Quick actions/.test(text()),'dashboard shows Quick actions card');
+  ok(/1\.60\.1\.7/.test(text()),'dashboard health shows the game version read from game.log');
+  ok(doc.querySelectorAll('.player').length>=1,'mini player rendered');
+  console.log('# tuning (bug 1)');
+  await go('Truck tuning');
+  const boxes=[...doc.querySelectorAll("input[name='tune-truck']")];
+  ok(boxes.length===3,'three truck checkboxes ('+boxes.length+')');
+  boxes.forEach(b=>{if(!b.checked){b.checked=true;b.dispatchEvent(new w.Event('change',{bubbles:true}))}});
+  const buildBtn=[...doc.querySelectorAll('button')].find(b=>/Build|Create|Generate/i.test(b.textContent)&&/mod|tuning|performance/i.test(b.textContent+b.className)||/build/i.test(b.id||''));
+  ok(!!buildBtn,'found the build button: '+(buildBtn&&buildBtn.textContent.trim()));
+  const before=calls.length;buildBtn.click();await sleep(2500);
+  const tb=calls.slice(before).find(c=>c[0]==='build_tuning_mod');
+  ok(!!tb,'UI called build_tuning_mod');
+  if(tb)console.log('  payload =',JSON.stringify(tb[1][0]));
+  const genDir=path.join(info.game,'mod');const made=fs.readdirSync(genDir).filter(f=>f.endsWith('.scs')||f.endsWith('.zip'));
+  const gen2=path.join(info.tmp,'la');
+  ok(!/Select supported truck definitions/.test(text()),'no "Select supported truck definitions" error on screen');
+  console.log('  mods folder after build:',made.join(', ')||'(none; output may be in another folder)');
+  console.log('# music page');
+  await go('Music');
+  await sleep(900);
+  ok(doc.querySelectorAll('.track-option').length>=3,'tracks and stations listed ('+doc.querySelectorAll('.track-option').length+')');
+  ok(/Test Artist/.test(text()),'ID3 artist tag is shown');
+  const first=[...doc.querySelectorAll('.track-option')].find(b=>!b.disabled);
+  first.click();await sleep(400);
+  const au=w.__trPlayer.audio;ok(/^http:\/\/127\.0\.0\.1:\d+\/t\/[\w-]+\/\d+$/.test(au.src),'track plays through the loopback server: '+au.src);
+  // fetch that URL from Node to prove the audio really streams
+  const res=await fetch(au.src,{headers:{Range:'bytes=0-9'}});ok(res.status===206,'loopback server answers Range (206)');
+  const bad=await fetch(au.src.replace(/\/t\/[^/]+\//,'/t/wrongtoken/'));ok(bad.status===404,'wrong token is refused (404)');
+  await click(b=>/Run diagnosis/.test(b.textContent));await sleep(900);
+  const t=text();
+  ok(/empty\.mp3 is empty/.test(t),'diagnosis: zero-byte file found');
+  ok(/song\.wma: \.wma is not recognised/.test(t),'diagnosis: unsupported format found');
+  ok(/fake\.mp3 has no valid audio/.test(t),'diagnosis: damaged mp3 found');
+  ok(/very large ID3 tag/.test(t),'diagnosis: huge ID3 tag found');
+  ok(/mms:\/\//.test(t)||/unsupported address/.test(t),'diagnosis: MMS station flagged');
+  ok(/audio-related error/.test(t),'diagnosis: game.log audio error surfaced');
+  ok(/g_music_volume = 0/.test(t),'diagnosis: config music volume 0 surfaced');
+  console.log('# fix mode');
+  await click(b=>/Move unplayable files away/.test(b.textContent));await sleep(1200);
+  const mus=path.join(info.game,'music');const left=fs.readdirSync(mus).sort();
+  console.log('  music folder now:',left.join(', '));
+  ok(!left.includes('empty.mp3')&&!left.includes('song.wma')&&!left.includes('fake.mp3')&&!left.includes('list.m3u'),'unplayable files moved out');
+  ok(left.includes('good.mp3')&&left.includes('bigtag.mp3'),'good files untouched');
+  await click(b=>/Strip oversized ID3 tags/.test(b.textContent));await sleep(1200);
+  ok(fs.statSync(path.join(mus,'bigtag.mp3')).size<100*1024,'big ID3 tag stripped');
+  const undoBtns=[...doc.querySelectorAll('button')].filter(b=>b.textContent.trim()==='Undo');ok(undoBtns.length>=2,'undo buttons listed ('+undoBtns.length+')');
+  for(const u of [...undoBtns].reverse()){u.click();await sleep(900)}
+  const after=fs.readdirSync(mus).sort();
+  ok(after.includes('empty.mp3')&&after.includes('song.wma')&&fs.statSync(path.join(mus,'bigtag.mp3')).size>600*1024,'undo restored everything: '+after.join(', '));
+  console.log('# cheat center runtime section');
+  await go('Cheat');
+  const ct=text();
+  ok(/g_set_time/.test(ct),'time card shows the g_set_time console command');
+  ok(/Requires Developer Console/i.test(ct)||/Manual in-game/i.test(ct),'time card shows a real console status');
+  ok(/Infinite fuel/.test(ct)&&/does not guess memory addresses/.test(ct),'infinite fuel states its real limitation');
+ }catch(e){failed++;console.log('  ERROR',e.stack||e)}
+ console.log(`\nRESULT passed=${passed} failed=${failed}`);
+ py.kill();process.exit(failed?1:0);
+})();

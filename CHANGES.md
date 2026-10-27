@@ -48,3 +48,25 @@
 - Added a bilingual Cheat Center sidebar page with category filtering, selected profile/save context, save-backed money/XP/skills previews, confirmed writes, existing verified truck repair/refuel actions, and persistent operation history under the ETS2 Documents data directory.
 - Exposed the detected ETS2 game version and process state for runtime compatibility context; added a backed-up config action for developer mode/console.
 - Documented free-camera and manual truck teleport keys without claiming the app executes them. Runtime fuel/damage/fatigue/fine/time/simulation-speed toggles remain unsupported; BSII binary saves remain read-only.
+
+## Debug + music/radio + dashboard pass
+### Fixed
+- **Tuning always said "Select supported truck definitions".** The web UI sent truck *definition ids* (`mercedes.actros2014`) but the bridge and `create_tuning_mod` use the *display names* (`Mercedes Actros 2014`), so every build and every preset save was rejected. The UI now sends display names; the bridge accepts either spelling (`_truck_names`) and always stores names, so presets saved by older builds keep working. Reproduced on the unmodified upload with the end-to-end harness, fixed, and covered by tests.
+- Two tuning builds in the same second crashed with `FileExistsError`; the second file now gets a `_2` suffix.
+
+### Cheat Center - Runtime features (honest status)
+- **Change game time:** now an actionable card. It shows the documented console command `g_set_time` (copy button) and a real status from `config.cfg` (Requires Developer Console / manual in-game). The argument format is NOT verified for the installed build; the app cannot send commands to the game.
+- **Infinite fuel / No damage / Simulation speed:** still Unsupported, with the precise reason. They are run-time values of the game; no save field, mod mechanism or documented command exists, and writing memory without a verified signature for the exact `eurotrucks2.exe` would be guesswork. The app does not fake them.
+
+### New: Music & Radio (page + dashboard player)
+- `ets2_music.py`: scans `Documents\Euro Truck Simulator 2\music` (depth-limited, no symlinks), reads ID3v1/v2 tags, sniffs MP3/OGG headers, parses `live_streams.sii`.
+- Playback happens in the app through a read-only, token-protected server bound to 127.0.0.1 (Host-header check against DNS rebinding, Range support, only files found by the scan). Radio stations stream directly from their URL (this connects to the internet and only happens when you press play). CSP gained `media-src 'self' http: https:`; scripts, styles and everything else stay strict.
+- **Why doesn't in-game music play? (diagnosis):** every finding is labelled by evidence: *checked on disk*, *SCS documentation* or *community report (not verified here)*. Checks: missing/empty folder, zero-byte, damaged/not-really-MP3, unsupported formats (WMA/M4A/AAC...), playlist files, doubled extensions, oversized ID3 tags, shortcuts, MMS/playlist radio entries, audio-related lines in `game.log.txt`, music/radio keys in `config.cfg`, Options > Audio reminder, restart hint.
+- **Fix mode (reversible):** "Move unplayable files away" and "Strip oversized ID3 tags" (audio bytes untouched, validated before replacing). Originals are kept under `TR-EURO-EDITOR\music_fixes\<id>\` with a manifest; every fix has an Undo. Refuses while ETS2 runs. Whether the game plays the files afterwards cannot be verified here.
+
+### New: Dashboard
+- Game health card (ETS2 running, game version from the log, developer/console flags, last-backup age + backup size, mods in folder, music files/stations) - only values that can be read, otherwise "not available".
+- Radio & music mini player, quick actions (open game/music/mods/backups/settings folders; fixed whitelist), rank progress bar from the real XP tiers.
+
+### Tests
+- `tests/test_music_and_fixes.py` (25 tests), `tests/test_e2e_ui.py` + `tests/e2e/` (real `app.js` in jsdom against the real bridge; runs when node + jsdom are available).

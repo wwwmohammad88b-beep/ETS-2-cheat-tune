@@ -46,3 +46,9 @@ make_backup, unique_backup_dir, backup_history, latest_backup, restore_save_back
 4. ETS2SaveEditor_Setup.exe را نصب کن؛ Start Menu، میانبر اختیاری، اجرای per-user و Uninstall را بررسی کن.
 5. بعد از دسترسی به یک سیو آزمایشی، Dashboard/Garage و عملیات فقط‌خواندنی را تطبیق بده؛ سپس با بکاپ جداگانه عملیات نوشتن را آزمایش کن.
 6. screenshotهای Dashboard، Tuning، Garage و Appearance را در تم‌های Midnight Cyan، Racing Red و Light Professional و زبان‌های English/Persian بازبینی کن؛ اگر چینش یا رندر فارسی مشکل داشت اصلاح جداگانه انجام بده.
+
+## Update: debug pass (music/radio, dashboard, tuning fix)
+- Done: tuning truck-selection bug (UI sent ids, core uses display names), music/radio module + page + dashboard cards, reversible music fixes, honest runtime-feature cards, 25 new unit tests + jsdom end-to-end harness.
+- NOT VERIFIED (no Windows/WebView2/game here): real audio output through WebView2, how the layout looks (no browser screenshots were possible), whether the in-game player accepts files after a fix, `g_set_time` argument syntax, Persian rendering on Windows.
+- Still unsupported on purpose: infinite fuel, no damage, simulation speed (need a verified memory signature or a documented command for the exact game build).
+- Run: `python -m unittest discover -s tests -v` (GUI tests need a display/Xvfb); e2e: `npm install jsdom` then `node tests/e2e/run.js .`.

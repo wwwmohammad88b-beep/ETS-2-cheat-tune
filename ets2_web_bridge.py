@@ -11,9 +11,12 @@ import math
 import os
 import re
 import time
+import subprocess
 import webbrowser
 from urllib.parse import quote_plus
 from pathlib import Path
+
+import ets2_music as music
 
 
 class EditorBridge:
@@ -28,6 +31,7 @@ class EditorBridge:
         # and traversing Window.native recurses through WinForms accessibility objects.
         self._window = None
         self.language = 0
+        self._audio = None
 
     @staticmethod
     def _index(value, length, field):
@@ -95,7 +99,7 @@ class EditorBridge:
                 "theme_css": self.theme_css(appearance), "tuning_trucks": self.core.TUNING_TRUCKS,
                 "preset_fields": self.core.TUNING_PRESET_FIELDS, "skills": list(self.core.SKILLS), "skill_labels": self.core.SKILL_LABELS,
                 "adr_classes": self.core.ADR_CLASSES, "adr_fa": self.core.ADR_FA, "config_keys": self.core.CONFIG_KEYS,
-                "language": self.language}
+                "level_tiers": [list(t) for t in self.core.LEVEL_TIERS], "language": self.language}
 
     def state(self):
         discovered = list(self.core.find_game_dirs())
@@ -650,6 +654,27 @@ class EditorBridge:
         path = self.core.editor_storage_root() / "settings" / "tuning_presets.json"
         return self.core.load_tuning_presets(path)
 
+    def _truck_names(self, values):
+        """Normalise a tuning truck selection to display names.
+
+        create_tuning_mod() and saved presets use the display names (the keys of TUNING_TRUCKS);
+        the web UI used to send the definition ids (the values), which made every build fail
+        with "Select supported truck definitions". Both spellings are accepted now.
+        """
+        by_id = {value: key for key, value in self.core.TUNING_TRUCKS.items()}
+        if not isinstance(values, list) or not values or len(values) > len(by_id):
+            raise ValueError("Select supported truck definitions")
+        names = []
+        for item in values:
+            if isinstance(item, bool) or not isinstance(item, str):
+                raise ValueError("Select supported truck definitions")
+            name = item if item in self.core.TUNING_TRUCKS else by_id.get(item)
+            if name is None:
+                raise ValueError("Select supported truck definitions")
+            if name not in names:
+                names.append(name)
+        return names
+
     def save_tuning_preset(self, name, values):
         name = self._text(name, "preset name", 48)
         if not isinstance(values, dict) or set(values) != set(self.core.TUNING_PRESET_FIELDS):
@@ -659,9 +684,10 @@ class EditorBridge:
         if any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v)
                for v in numeric):
             raise ValueError("Invalid tuning preset values")
-        if not isinstance(values.get("trucks"), list) or any(x not in self.core.TUNING_TRUCKS
-                                                               for x in values["trucks"]):
-            raise ValueError("Invalid tuning truck selection")
+        try:
+            values = dict(values, trucks=self._truck_names(values.get("trucks")))
+        except ValueError:
+            raise ValueError("Invalid tuning truck selection") from None
         presets = self.tuning_presets()
         presets[name] = values
         self.core.save_tuning_presets(self.core.editor_storage_root() / "settings" / "tuning_presets.json", presets)
@@ -671,9 +697,7 @@ class EditorBridge:
         if not isinstance(payload, dict) or set(payload) - {"name", "trucks", "hp", "torque", "rpm",
                 "speed", "gears", "differential", "engine_brake", "retarder", "compatible_versions"}:
             raise ValueError("Invalid tuning request")
-        trucks = payload.get("trucks")
-        if not isinstance(trucks, list) or not trucks or any(x not in self.core.TUNING_TRUCKS for x in trucks):
-            raise ValueError("Select supported truck definitions")
+        trucks = self._truck_names(payload.get("trucks"))
         def number(key, low, high):
             value = payload.get(key)
             if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not low <= value <= high:
@@ -701,6 +725,10 @@ class EditorBridge:
         outdir.mkdir(parents=True, exist_ok=True)
         stamp = time.strftime("%Y%m%d_%H%M%S")
         destination = outdir / f"{name}_{stamp}.scs"
+        counter = 2
+        while destination.exists():                      # double click / two builds in one second
+            destination = outdir / f"{name}_{stamp}_{counter}.scs"
+            counter += 1
         count = self.core.create_tuning_mod(destination, trucks, hp, torque, rpm, gears, speed,
                     diff, engine_brake, retarder, versions)
         return {"path": str(destination), "files": count, "compatibility": "static_only"}
@@ -716,6 +744,149 @@ class EditorBridge:
         return self.core.estimate_tuning_performance(positive("hp",50,5000), positive("torque",100,30000),
             positive("rpm",500,10000), positive("speed",20,1000), positive("differential",0.1,20),
             positive("mass",1000,200000))
+    # ------------------------------------------------------------------ music and radio
+    def _music_server(self):
+        if self._audio is None:
+            self._audio = music.AudioServer()
+            self._audio.start()
+        return self._audio
+
+    def music_state(self):
+        game = self._game()
+        info = music.scan_music(game)
+        streams = music.parse_live_streams(game)
+        server = self._music_server()
+        folder = music.music_dir(game).resolve()
+        library, rows = {}, []
+        for index, track in enumerate(info["tracks"]):
+            path = (folder / track["rel"]).resolve()
+            can_play = (track["ext"] in music.BROWSER_EXT and track["ok"] and track["size"] > 0
+                        and path.is_relative_to(folder))
+            if can_play:
+                library[index] = path
+            rows.append({"index": index, "name": track["title"] or track["name"], "artist": track["artist"],
+                         "album": track["album"], "file": track["rel"], "ext": track["ext"],
+                         "size": track["size"], "playable": can_play,
+                         "in_game_format": track["ext"] in music.PLAYABLE_EXT, "ok": bool(track["ok"])})
+        server.set_library(library)
+        stations = [{"index": i, "name": st["name"], "genre": st["genre"], "issue": st.get("issue", ""),
+                     "url": st["url"] if not st.get("issue") else ""}
+                    for i, st in enumerate(streams["stations"])]
+        return {"folder": info["folder"], "exists": info["exists"], "tracks": rows[:1500],
+                "track_count": len(rows), "truncated": info["truncated"], "shortcuts": info["shortcuts"],
+                "stream_base": server.base_url(), "stations": stations, "stations_file": streams["exists"],
+                "fixes": music.list_fixes(self.core.editor_storage_root()),
+                "game_running": bool(self.core.game_running())}
+
+    def music_diagnose(self):
+        game = self._game()
+        log_text = ""
+        try:
+            log_path = self.core.game_log_path(game)
+            if Path(log_path).is_file():
+                with open(log_path, "rb") as handle:
+                    handle.seek(0, os.SEEK_END)
+                    handle.seek(max(0, handle.tell() - 400_000))
+                    log_text = handle.read().decode("utf-8", "replace")
+        except OSError:
+            log_text = ""
+        try:
+            config = self.core.read_config(game)
+        except Exception:
+            config = {}
+        result = music.diagnose(game, log_text, config, bool(self.core.game_running()))
+        result["fixes"] = music.list_fixes(self.core.editor_storage_root())
+        return result
+
+    def music_fix(self, action):
+        if action not in ("quarantine_bad", "strip_big_tags"):
+            raise ValueError("Unknown music fix")
+        if self.core.game_running():
+            raise ValueError("Close ETS2 before changing the music folder")
+        result = music.run_fix(self._game(), self.core.editor_storage_root(), action)
+        result["diagnosis"] = self.music_diagnose()
+        return result
+
+    def music_undo(self, stamp):
+        if not isinstance(stamp, str) or not re.fullmatch(r"\d{8}-\d{6}", stamp):
+            raise ValueError("Invalid fix id")
+        if self.core.game_running():
+            raise ValueError("Close ETS2 before changing the music folder")
+        result = music.undo_fix(self._game(), self.core.editor_storage_root(), stamp)
+        result["diagnosis"] = self.music_diagnose()
+        return result
+
+    # ------------------------------------------------------------------ dashboard helpers
+    def dashboard_extras(self):
+        """Facts for the dashboard health card. Only values that can really be read."""
+        game = self._game()
+        extras = {"game_running": bool(self.core.game_running()), "game_version": "", "developer": None,
+                  "console": None, "backup_mb": None, "backup_age_days": None,
+                  "music_files": None, "stations": None, "mods_in_folder": None}
+        try:
+            extras["game_version"] = self.core.detect_game_version(game) or ""
+        except Exception:
+            pass
+        try:
+            cfg = self.core.read_config(game)
+            extras["developer"] = cfg.get("g_developer") == "1"
+            extras["console"] = cfg.get("g_console") == "1"
+        except Exception:
+            pass
+        try:
+            total, count = 0, 0
+            root = Path(self.core.backup_root(game))
+            if root.is_dir():
+                for item in root.rglob("*"):
+                    if item.is_file():
+                        total += item.stat().st_size
+                        count += 1
+                        if count > 20000:
+                            break
+            extras["backup_mb"] = round(total / 1048576, 1)
+        except Exception:
+            pass
+        try:
+            save = self._save()
+            latest = self.core.latest_backup(save)
+            if latest:
+                extras["backup_age_days"] = round((time.time() - Path(latest).stat().st_mtime) / 86400, 1)
+        except Exception:
+            pass
+        try:
+            folder = music.music_dir(game)
+            if folder.is_dir():
+                extras["music_files"] = sum(1 for f in music._walk(folder)
+                                            if f.suffix.lower() in music.PLAYABLE_EXT + music.MAYBE_EXT)
+            streams = music.parse_live_streams(game)
+            extras["stations"] = len(streams["stations"]) if streams["exists"] else 0
+        except Exception:
+            pass
+        try:
+            extras["mods_in_folder"] = len(self.core.list_mod_paths(game))
+        except Exception:
+            pass
+        return extras
+
+    def open_folder(self, kind):
+        """Open one of a fixed set of folders in the file manager."""
+        game = self._game()
+        targets = {"game": game, "music": music.music_dir(game), "mods": game / "mod",
+                   "backups": Path(self.core.backup_root(game)),
+                   "settings": self.core.editor_storage_root() / "settings",
+                   "generated": self.core.editor_storage_root() / "generated_mods"}
+        if kind not in targets:
+            raise ValueError("Unknown folder")
+        target = targets[kind]
+        if not target.is_dir():
+            raise ValueError("Folder not found: " + str(target))
+        opener = getattr(os, "startfile", None)
+        if opener:
+            opener(str(target))
+        else:
+            subprocess.Popen(["xdg-open", str(target)])
+        return {"opened": str(target)}
+
     def theme_css(self, appearance=None):
         """Generate offline CSS tokens from the canonical Python theme palette."""
         if appearance is None:
